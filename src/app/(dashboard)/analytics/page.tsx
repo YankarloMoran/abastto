@@ -2,17 +2,11 @@
 
 import { useState } from 'react'
 import { generateSpendAnalytics } from '@/actions/ai'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BarChart3, TrendingUp, DollarSign, BrainCircuit, Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
-
-// Utilidad simple para parsear Markdown desde Gemini
-function renderMarkdown(text: string) {
-    let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    html = html.replace(/\n/g, '<br />')
-    html = html.replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
-    return html
-}
+import { BarChart3, TrendingUp, BrainCircuit, Loader2, AlertCircle, ArrowLeft, FileText } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function AnalyticsPageClient() {
     const [loading, setLoading] = useState(false)
@@ -128,10 +122,11 @@ export default function AnalyticsPageClient() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-10">
-                            <div 
-                                className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed text-lg" 
-                                dangerouslySetInnerHTML={{ __html: renderMarkdown(data.analysis) }} 
-                            />
+                            <div className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed text-lg prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:marker:text-blue-600">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {data.analysis}
+                                </ReactMarkdown>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -148,8 +143,4 @@ export default function AnalyticsPageClient() {
             )}
         </div>
     )
-}
-
-function FileText(props: any) {
-    return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
 }

@@ -2,6 +2,8 @@
 
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
+import { google } from '@ai-sdk/google'
+import { generateText } from 'ai'
 
 export async function analyzeOffers(rfqId: string) {
     try {
@@ -28,15 +30,7 @@ export async function analyzeOffers(rfqId: string) {
         if (rfq.companyId !== session.user.companyId) return { success: false, message: 'Tu empresa no es dueña de esta solicitud.' }
         if (rfq.bids.length === 0) return { success: false, message: 'No hay ofertas para analizar todavía.' }
 
-        // 2. Initialize Gemini Client
-        const apiKey = process.env.GEMINI_API_KEY
-        if (!apiKey) return { success: false, message: 'Clave de IA no configurada (GEMINI_API_KEY).' }
-
-        const { GoogleGenerativeAI } = require('@google/generative-ai')
-        const genAI = new GoogleGenerativeAI(apiKey)
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-
-        // 3. Construct the Prompt
+        // 2. Construct the Prompt
         const rfqItemsText = rfq.items.map(item => `- ${item.quantity} ${item.unit} de ${item.name}`).join('\n')
 
         const bidDataText = rfq.bids.map((bid: any, index: number) => {
@@ -88,32 +82,32 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
     {
       "bid_id": "ID de la oferta",
       "provider_name": "Nombre del proveedor de esta oferta",
-      "price_score": 90, // Número de 0 a 100 evaluando el precio (100 = El mejor precio).
-      "time_score": 85, // Número 0-100 evaluando el tiempo de entrega (100 = Más rápido).
-      "quality_score": 80, // Número 0-100 nivel general estimado de cumplimiento técnico.
-      "pros": ["pro 1", "pro 2"], // Lista de ventajas
-      "cons": ["contra 1", "contra 2"] // Lista de desventajas
+      "price_score": 90,
+      "time_score": 85,
+      "quality_score": 80,
+      "pros": ["pro 1", "pro 2"],
+      "cons": ["contra 1", "contra 2"]
     }
   ]
 }
 `
 
-        // 4. Call Gemini API
-        const result = await model.generateContent({
-             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-             generationConfig: {
-                 responseMimeType: "application/json"
-             }
+        // 3. Call Gemini via AI SDK (unified approach)
+        const result = await generateText({
+            model: google('gemini-2.5-flash'),
+            prompt,
         })
-        const responseText = result.response.text()
 
-        // 5. Clean up string just in case, though GEMINI should return raw JSON
-        let cleanJson = responseText.trim()
-        if (cleanJson.startsWith('\`\`\`json')) {
-            cleanJson = cleanJson.replace(/^\`\`\`json\n/, '').replace(/\n\`\`\`$/, '')
+        // 4. Clean up string just in case
+        let cleanJson = result.text.trim()
+        if (cleanJson.startsWith('```json')) {
+            cleanJson = cleanJson.replace(/^```json\n/, '').replace(/\n```$/, '')
+        }
+        if (cleanJson.startsWith('```')) {
+            cleanJson = cleanJson.replace(/^```\n/, '').replace(/\n```$/, '')
         }
 
-        // 6. Save the analysis to the DB
+        // 5. Save the analysis to the DB
         await prisma.rfq.update({
             where: { id: rfqId },
             data: { aiAnalysis: cleanJson }
@@ -179,13 +173,6 @@ export async function generateSpendAnalytics() {
         const savings = totalBudget - totalSpent;
         const savingsPercentage = totalBudget > 0 ? (savings / totalBudget) * 100 : 0;
 
-        const apiKey = process.env.GEMINI_API_KEY
-        if (!apiKey) return { success: false, message: 'Clave de IA no configurada.' }
-
-        const { GoogleGenerativeAI } = require('@google/generative-ai')
-        const genAI = new GoogleGenerativeAI(apiKey)
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-
         const prompt = `
 Eres un Analista Financiero B2B y Director de Compras (CPO).
 Tu objetivo es generar a partir del historial de compras de la empresa, un informe ejecutivo rápido resaltando el ahorro generado.
@@ -205,10 +192,14 @@ Escribe un reporte ejecutivo de 2 a 3 párrafos.
 3. Menciona brevemente alguna recomendación futura basada en estos datos.
 Usa markdown (negritas, bullet points) para facilitar la lectura. No uses HTML. Usa un tono ejecutivo, enfocado a resultados contables y motivacional.
 `
-        const result = await model.generateContent(prompt)
+        const result = await generateText({
+            model: google('gemini-2.5-flash'),
+            prompt,
+        })
+
         return { 
             success: true, 
-            analysis: result.response.text(), 
+            analysis: result.text, 
             savings, 
             totalSpent,
             savingsPercentage 

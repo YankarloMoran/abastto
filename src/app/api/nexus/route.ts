@@ -27,29 +27,43 @@ function extractTextFromMessage(message: any): string {
 // ─── System Prompts ──────────────────────────────────────
 
 
-function getAuthenticatedPrompt(userName: string, role: string, companyName: string) {
+function getAuthenticatedPrompt(userName: string, role: string, companyName: string, metrics?: { activeRfqs: number; totalBids: number; pendingAlerts: number }) {
+  const now = new Date()
+  const dateStr = now.toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  const timeStr = now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })
+
   return `Eres Nexus, el asistente inteligente de Abastto — una plataforma B2B de compras empresariales en Guatemala.
 
-Datos del usuario actual:
-- Nombre: ${userName}
-- Rol: ${role === 'BUYER' ? 'Comprador' : 'Proveedor'}
+Contexto actual:
+- Fecha: ${dateStr}
+- Hora: ${timeStr}
+- Usuario: ${userName}
+- Rol: ${role === 'BUYER' ? 'Director de Compras (Comprador)' : 'Ejecutivo Comercial (Proveedor)'}
 - Empresa: ${companyName}
+${metrics ? `- Licitaciones activas: ${metrics.activeRfqs}\n- Total de ofertas: ${metrics.totalBids}\n- Alertas pendientes: ${metrics.pendingAlerts}` : ''}
 
-Puedes ayudar con:
-- Consultar licitaciones (RFQs), ofertas y proveedores
-- Mostrar información de la empresa del usuario
-- Navegar por la plataforma
-- Responder preguntas sobre el sistema y sus funciones
+Herramientas disponibles — úsalas siempre que necesites datos reales:
+- getRfqSummary: Consultar licitaciones del usuario
+- getBidsSummary: Ver ofertas enviadas/recibidas
+- searchSuppliers: Buscar proveedores por industria o departamento
+- getCompanyInfo: Información de la empresa del usuario
+- getMarketInsights: Estadísticas del mercado y promedios por categoría
+- getActivityLog: Historial de actividad reciente
+- getDeadlineAlerts: Licitaciones que cierran pronto (urgentes)
+- getFinancialSummary: Resumen financiero completo (gastos, ahorros, ROI)
+- navigateTo: Generar enlaces de navegación
 
 Reglas obligatorias:
 - Responde SIEMPRE en español
 - Sé conciso, profesional y amigable
-- Usa markdown para formatear (negritas, listas, etc.)
-- Si necesitas datos, usa las herramientas disponibles — no inventes datos
+- Usa markdown para formatear (negritas, listas, tablas cuando sea útil)
+- Si necesitas datos, usa las herramientas disponibles — NUNCA inventes datos
 - Si el usuario pide algo que no puedes hacer, dile amablemente y sugiere alternativas
-- Cuando uses la herramienta navigateTo, muestra el enlace como: [Nombre de la página](ruta)
-- No reveles información técnica interna (nombres de tablas, IDs de base de datos, etc.)
-- Preséntate brevemente solo en el primer mensaje de cada conversación`
+- Cuando uses navigateTo, muestra el enlace como: [Nombre de la página](ruta)
+- No reveles información técnica interna (IDs, nombres de tablas, etc.)
+- Preséntate brevemente solo en el primer mensaje de cada conversación
+- Cuando muestres cifras monetarias, usa el formato Q (Quetzales) con separadores de miles
+- Si detectas urgencias (deadlines próximos), alerta al usuario proactivamente`
 }
 
 const PUBLIC_PROMPT = `Eres Nexus, el asistente de bienvenida de Abastto — una plataforma B2B de compras empresariales en Guatemala.
@@ -138,16 +152,31 @@ export async function POST(req: Request) {
     let systemPrompt: string
 
     if (isAuthenticated && session.user.companyId) {
-      const company = await prisma.company.findUnique({
-        where: { id: session.user.companyId },
-        select: { name: true },
-      })
+      const companyId = session.user.companyId
+      const role = session.user.role || 'BUYER'
+
+      const [company, activeRfqs, totalBids, pendingAlerts] = await Promise.all([
+        prisma.company.findUnique({ where: { id: companyId }, select: { name: true } }),
+        role === 'BUYER'
+          ? prisma.rfq.count({ where: { companyId, status: { in: ['OPEN', 'EVALUATING'] } } })
+          : prisma.rfq.count({ where: { status: 'OPEN', deadline: { gt: new Date() } } }),
+        role === 'BUYER'
+          ? prisma.bid.count({ where: { rfq: { companyId } } })
+          : prisma.bid.count({ where: { companyId } }),
+        prisma.rfq.count({
+          where: {
+            ...(role === 'BUYER' ? { companyId } : {}),
+            status: 'OPEN',
+            deadline: { gte: new Date(), lte: new Date(Date.now() + 48 * 60 * 60 * 1000) },
+          }
+        }),
+      ])
       
       tools = {
         ...getAuthenticatedTools({
           userId: session.user.id,
-          companyId: session.user.companyId,
-          role: session.user.role || 'BUYER',
+          companyId,
+          role,
           companyName: company?.name,
         }),
         ...getPublicTools(),
@@ -155,8 +184,9 @@ export async function POST(req: Request) {
       
       systemPrompt = getAuthenticatedPrompt(
         session.user.name || 'Usuario',
-        session.user.role || 'BUYER',
-        company?.name || 'Tu empresa'
+        role,
+        company?.name || 'Tu empresa',
+        { activeRfqs, totalBids, pendingAlerts }
       )
     } else {
       tools = getPublicTools() as any

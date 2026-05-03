@@ -119,10 +119,27 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    @apply bg-background text-foreground;
   }
+}
+
+/* Recharts dark mode support */
+:root {
+  --chart-grid: #f1f5f9;
+  --chart-text: #94a3b8;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #e2e8f0;
+  --chart-tooltip-text: #0f172a;
+  --chart-pie-stroke: #ffffff;
+}
+
+.dark {
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-text: #64748b;
+  --chart-tooltip-bg: #0f172a;
+  --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+  --chart-tooltip-text: #f1f5f9;
+  --chart-pie-stroke: #0f172a;
 }

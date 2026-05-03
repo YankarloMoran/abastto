@@ -70,7 +70,6 @@ export function getAuthenticatedTools(user: UserContext) {
         if (industry) where.industry = industry
         if (department) where.department = department
 
-        // Only show companies that have users with SUPPLIER role
         const suppliers = await prisma.company.findMany({
           where: {
             ...where,
@@ -192,6 +191,155 @@ export function getAuthenticatedTools(user: UserContext) {
                 status: b.status,
               })),
             })),
+          }
+        }
+      },
+    }),
+
+    // ─── NEW: Market Insights ────────────────────────────────
+    getMarketInsights: tool({
+      description: 'Obtiene estadísticas del mercado: promedio de presupuestos por categoría, proveedores activos, tendencias. Usa cuando el usuario pregunte sobre el mercado, tendencias, o promedios.',
+      inputSchema: z.object({
+        category: z.enum(['TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER', 'all']).optional()
+          .describe('Categoría a analizar. "all" para estadísticas generales.'),
+      }),
+      execute: async ({ category }) => {
+        const where: Record<string, unknown> = {}
+        if (category && category !== 'all') where.category = category
+
+        const [totalRfqs, avgBudget, totalBids, activeSuppliers, rfqsByCategory] = await Promise.all([
+          prisma.rfq.count({ where }),
+          prisma.rfq.aggregate({ where, _avg: { budget: true } }),
+          prisma.bid.count(),
+          prisma.company.count({ where: { users: { some: { role: 'SUPPLIER' } } } }),
+          prisma.rfq.groupBy({
+            by: ['category'],
+            _count: { _all: true },
+            _avg: { budget: true },
+          }),
+        ])
+
+        return {
+          totalRfqs,
+          averageBudget: Number(avgBudget._avg.budget || 0),
+          totalBids,
+          activeSuppliers,
+          breakdown: rfqsByCategory.map(g => ({
+            category: g.category || 'SIN_CATEGORÍA',
+            count: g._count._all,
+            avgBudget: Math.round(Number(g._avg.budget || 0)),
+          })),
+        }
+      },
+    }),
+
+    // ─── NEW: Activity Log ───────────────────────────────────
+    getActivityLog: tool({
+      description: 'Obtiene el historial de actividad reciente de la empresa. Usa cuando el usuario pregunte qué ha pasado recientemente, el historial, o actividad.',
+      inputSchema: z.object({
+        limit: z.number().optional().describe('Cantidad de registros a devolver (default: 10)'),
+      }),
+      execute: async ({ limit }) => {
+        const logs = await prisma.activityLog.findMany({
+          where: { companyId: user.companyId },
+          orderBy: { createdAt: 'desc' },
+          take: limit || 10,
+        })
+
+        return {
+          total: logs.length,
+          activities: logs.map(l => ({
+            action: l.action,
+            description: l.description,
+            date: l.createdAt.toISOString(),
+          })),
+        }
+      },
+    }),
+
+    // ─── NEW: Deadline Alerts ────────────────────────────────
+    getDeadlineAlerts: tool({
+      description: 'Obtiene las licitaciones que cierran en las próximas 24-72 horas. Usa cuando el usuario pregunte sobre vencimientos, plazos, o qué es urgente.',
+      inputSchema: z.object({
+        hoursAhead: z.number().optional().describe('Horas en el futuro a revisar (default: 48)'),
+      }),
+      execute: async ({ hoursAhead }) => {
+        const hours = hoursAhead || 48
+        const now = new Date()
+        const future = new Date(Date.now() + hours * 60 * 60 * 1000)
+
+        const isBuyer = user.role === 'BUYER'
+        const where = isBuyer
+          ? { companyId: user.companyId, status: 'OPEN' as const, deadline: { gte: now, lte: future } }
+          : { status: 'OPEN' as const, deadline: { gte: now, lte: future } }
+
+        const urgentRfqs = await prisma.rfq.findMany({
+          where,
+          select: {
+            id: true,
+            title: true,
+            deadline: true,
+            _count: { select: { bids: true } },
+            company: { select: { name: true } },
+          },
+          orderBy: { deadline: 'asc' },
+          take: 10,
+        })
+
+        return {
+          hoursChecked: hours,
+          urgentCount: urgentRfqs.length,
+          rfqs: urgentRfqs.map(r => ({
+            id: r.id,
+            title: r.title,
+            deadline: r.deadline.toISOString(),
+            hoursRemaining: Math.round((r.deadline.getTime() - now.getTime()) / (1000 * 60 * 60)),
+            bidsCount: r._count.bids,
+            company: r.company.name,
+          })),
+        }
+      },
+    }),
+
+    // ─── NEW: Financial Summary ──────────────────────────────
+    getFinancialSummary: tool({
+      description: 'Obtiene un resumen financiero: gasto total, ahorro, ROI. Usa cuando el usuario pregunte sobre dinero, gastos, ahorros, finanzas, o presupuesto.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        const isBuyer = user.role === 'BUYER'
+
+        if (isBuyer) {
+          const [totalBudget, acceptedSpend, rfqCount] = await Promise.all([
+            prisma.rfq.aggregate({ where: { companyId: user.companyId }, _sum: { budget: true } }),
+            prisma.bid.aggregate({ where: { status: 'ACCEPTED', rfq: { companyId: user.companyId } }, _sum: { amount: true } }),
+            prisma.rfq.count({ where: { companyId: user.companyId } }),
+          ])
+
+          const budget = Number(totalBudget._sum.budget || 0)
+          const spent = Number(acceptedSpend._sum.amount || 0)
+          const savings = budget - spent
+
+          return {
+            role: 'BUYER',
+            totalBudgeted: budget,
+            totalSpent: spent,
+            totalSaved: savings,
+            savingsPercentage: budget > 0 ? Math.round((savings / budget) * 100) : 0,
+            totalRfqs: rfqCount,
+          }
+        } else {
+          const [totalEarned, bidCount, wonCount] = await Promise.all([
+            prisma.bid.aggregate({ where: { companyId: user.companyId, status: 'ACCEPTED' }, _sum: { amount: true } }),
+            prisma.bid.count({ where: { companyId: user.companyId } }),
+            prisma.bid.count({ where: { companyId: user.companyId, status: 'ACCEPTED' } }),
+          ])
+
+          return {
+            role: 'SUPPLIER',
+            totalEarned: Number(totalEarned._sum.amount || 0),
+            totalBidsSubmitted: bidCount,
+            totalBidsWon: wonCount,
+            winRate: bidCount > 0 ? Math.round((wonCount / bidCount) * 100) : 0,
           }
         }
       },

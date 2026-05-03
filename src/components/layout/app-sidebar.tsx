@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard, FileText, Activity, Users, Settings,
-    LogOut, BoxIcon, Menu, X, ChevronDown
+    LogOut, BoxIcon, Menu, X, ChevronDown, Bell
 } from 'lucide-react'
 
 interface AppSidebarProps {
@@ -20,6 +20,7 @@ const NAV_ITEMS = (isBuyer: boolean) => [
     { icon: FileText, label: isBuyer ? 'Mis Licitaciones' : 'Oportunidades', href: '/rfq' },
     ...(isBuyer ? [{ icon: Activity, label: 'Analíticas', href: '/analytics' }] : []),
     { icon: Users, label: 'Red de Empresas', href: '/network' },
+    { icon: Bell, label: 'Notificaciones', href: '/notifications' },
 ]
 
 const ADMIN_ITEMS = [

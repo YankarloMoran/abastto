@@ -46,19 +46,14 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
     error,
     sendMessage,
   } = useChat({
-    transport: new DefaultChatTransport({ api: '/api/nexus' }),
-    body: { conversationId },
-    onResponse: (response) => {
-      const newConvoId = response.headers.get('X-Conversation-Id')
-      if (newConvoId && !conversationIdRef.current) {
-        setConversationId(newConvoId)
-      }
-    },
-    maxSteps: 5, // Importante: Permite al Agente ejecutar múltiples herramientas y re-evaluar
+    transport: new DefaultChatTransport({ 
+      api: '/api/nexus',
+      body: { conversationId },
+    }),
     onError: (err: Error) => {
       console.error('[Nexus Chat Error]:', err)
     },
-  } as any)
+  })
 
   const isLoading = status === 'streaming' || status === 'submitted'
 
@@ -162,22 +157,11 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
     if (isOpen) setHasNewMessage(false)
   }, [isOpen])
 
-  // Auto-trigger next step for tool results
-  useEffect(() => {
-    const lastMsg = messages[messages.length - 1]
-    if (!isLoading && lastMsg && lastMsg.role === 'assistant') {
-      const hasTools = lastMsg.toolInvocations && lastMsg.toolInvocations.length > 0;
-      const textContent = lastMsg.content || (lastMsg.parts?.filter((p) => p.type === 'text' && p.text).map((p) => p.text).join(''))
-      
-      if (hasTools && !textContent) {
-        // Auto prompt the AI to explain the tool output
-        sendMessage({ text: 'Genera una respuesta en lenguaje natural basada en la información obtenida de las herramientas ejecutadas.' })
-      }
-    }
-  }, [messages, isLoading, sendMessage])
+  // Note: Multi-step tool execution is handled server-side via stopWhen: stepCountIs(5)
+  // No client-side auto-trigger needed
 
   // Extract text content from message parts
-  const getMessageText = (message: { content?: string; parts?: Array<{ type: string; text?: string }>; toolInvocations?: Array<any> }) => {
+  const getMessageText = (message: { content?: string; parts?: Array<{ type: string; text?: string }> }) => {
     let textStr = ''
     if (message.parts && message.parts.length > 0) {
       textStr = message.parts
@@ -188,7 +172,8 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
       textStr = message.content || ''
     }
 
-    if (!textStr && message.toolInvocations && message.toolInvocations.length > 0) {
+    // Check for tool invocations in parts (SDK v6 format)
+    if (!textStr && message.parts?.some((p) => p.type === 'tool-invocation')) {
       return '⏳ *Analizando tu solicitud y consultando la base de datos...*'
     }
 
@@ -363,7 +348,6 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
                   )}
 
                   {messages
-                    .filter((m) => m.content !== 'Genera una respuesta en lenguaje natural basada en la información obtenida de las herramientas ejecutadas.')
                     .map((message) => {
                     const text = getMessageText(message as any)
                     if (!text) return null
