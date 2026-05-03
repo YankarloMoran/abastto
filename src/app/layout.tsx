@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/theme-provider";
+import { NexusChatWrapper } from "@/components/nexus-chat-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,8 +39,10 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <NexusChatWrapper />
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
