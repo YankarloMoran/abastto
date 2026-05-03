@@ -5,7 +5,7 @@ import { authenticate } from '@/lib/actions'
 import { ArrowRight, CheckCircle2, Lock, Mail, Eye, EyeOff, BoxIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import Footer from '@/components/layout/footer'
+
 
 export default function LoginPage() {
     const [errorMessage, dispatch] = useActionState(authenticate, undefined)
@@ -168,7 +168,7 @@ export default function LoginPage() {
                 </div>
                 </div>
             </div>
-            <Footer />
+
         </div>
     )
 }

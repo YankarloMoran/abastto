@@ -1,5 +1,10 @@
 import { streamText, convertToModelMessages, stepCountIs } from 'ai'
-import { google } from '@ai-sdk/google'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+
+// Create Google AI provider with explicit API key to avoid env var naming mismatches
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_GENERATIVE_API_KEY || '',
+})
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
 import { openrouter, FREE_MODELS } from '@/lib/openrouter'

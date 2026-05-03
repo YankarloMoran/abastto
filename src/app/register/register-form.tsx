@@ -5,7 +5,7 @@ import { registerUser } from '@/actions/register'
 import { Building2, User, Mail, Lock, CheckCircle2, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 export default function RegisterForm({ invitation }: { invitation?: any | null }) {
     const initialState = { message: '', errors: {} }
@@ -64,184 +64,177 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                     <input type="hidden" name="inviteToken" value={invitation.token} />
                 )}
 
-                <AnimatePresence mode="wait">
-                    {step === 1 && !invitation && (
-                        <motion.div
-                            key="step1"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
-                        >
-                            <div className="pt-2">
-                                <h3 className="text-lg font-bold leading-6 text-slate-900 dark:text-white flex items-center gap-2">
-                                    <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                    Información Comercial
-                                </h3>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Datos principales para identificar a su organización en la red.</p>
-                            </div>
+                {/* Step 1 - Always in DOM, hidden when not active */}
+                <div className={step === 1 && !invitation ? 'block' : 'hidden'}>
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-6"
+                    >
+                        <div className="pt-2">
+                            <h3 className="text-lg font-bold leading-6 text-slate-900 dark:text-white flex items-center gap-2">
+                                <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                Información Comercial
+                            </h3>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Datos principales para identificar a su organización en la red.</p>
+                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* NIT Field */}
-                                <div>
-                                    <label htmlFor="nit" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        NIT (Identificación Tributaria)
-                                    </label>
-                                    <div className="mt-1.5">
-                                        <input
-                                            type="text"
-                                            name="nit"
-                                            id="nit"
-                                            required={!invitation}
-                                            className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
-                                            placeholder="Ej. 1234567-8"
-                                        />
-                                    </div>
-                                    {state.errors?.nit && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.nit.join(', ')}</p>
-                                    )}
-                                </div>
-
-                                {/* Industry Field */}
-                                <div>
-                                    <label htmlFor="industry" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Sector Industrial
-                                    </label>
-                                    <div className="mt-1.5">
-                                        <select
-                                            id="industry"
-                                            name="industry"
-                                            required={!invitation}
-                                            className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
-                                        >
-                                            <option value="">Seleccione el sector...</option>
-                                            <option value="AGRICULTURA">Agricultura</option>
-                                            <option value="CONSTRUCCION">Construcción</option>
-                                            <option value="ESTADO_GOBIERNO">Entidad Gubernamental</option>
-                                            <option value="MANUFACTURA">Manufactura y Producción</option>
-                                            <option value="MEDICAL_SALUD">Salud y Servicios Médicos</option>
-                                            <option value="RETAIL_COMERCIO">Comercio Minorista / Mayorista</option>
-                                            <option value="SERVICIOS_PROFESIONALES">Servicios Profesionales</option>
-                                            <option value="TECNOLOGIA">Tecnología de la Información</option>
-                                            <option value="TRANSPORTE_LOGISTICA">Transporte y Logística</option>
-                                            <option value="OTRO">Otro sector corporativo</option>
-                                        </select>
-                                    </div>
-                                    {state.errors?.industry && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.industry.join(', ')}</p>
-                                    )}
-                                </div>
-
-                                {/* Company Name Field */}
-                                <div>
-                                    <label htmlFor="companyName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Razón Social
-                                    </label>
-                                    <div className="mt-1.5">
-                                        <input
-                                            type="text"
-                                            name="companyName"
-                                            id="companyName"
-                                            required={!invitation}
-                                            className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
-                                            placeholder="Ej. Constructora Los Andes"
-                                        />
-                                    </div>
-                                    {state.errors?.companyName && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.companyName.join(', ')}</p>
-                                    )}
-                                </div>
-
-                                {/* Department Field */}
-                                <div>
-                                    <label htmlFor="department" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Ubicación (Sede)
-                                    </label>
-                                    <div className="mt-1.5">
-                                        <select
-                                            id="department"
-                                            name="department"
-                                            required={!invitation}
-                                            className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
-                                        >
-                                            <option value="">Seleccione...</option>
-                                            <option value="GUATEMALA">Guatemala</option>
-                                            <option value="ALTA_VERAPAZ">Alta Verapaz</option>
-                                            <option value="BAJA_VERAPAZ">Baja Verapaz</option>
-                                            <option value="CHIMALTENANGO">Chimaltenango</option>
-                                            <option value="CHIQUIMULA">Chiquimula</option>
-                                            <option value="EL_PROGRESO">El Progreso</option>
-                                            <option value="ESCUINTLA">Escuintla</option>
-                                            <option value="HUEHUETENANGO">Huehuetenango</option>
-                                            <option value="IZABAL">Izabal</option>
-                                            <option value="JALAPA">Jalapa</option>
-                                            <option value="JUTIAPA">Jutiapa</option>
-                                            <option value="PETEN">Petén</option>
-                                            <option value="QUETZALTENANGO">Quetzaltenango</option>
-                                            <option value="QUICHE">Quiché</option>
-                                            <option value="RETALHULEU">Retalhuleu</option>
-                                            <option value="SACATEPEQUEZ">Sacatepéquez</option>
-                                            <option value="SAN_MARCOS">San Marcos</option>
-                                            <option value="SANTA_ROSA">Santa Rosa</option>
-                                            <option value="SOLOLA">Sololá</option>
-                                            <option value="SUCHITEPEQUEZ">Suchitepéquez</option>
-                                            <option value="TOTONICAPAN">Totonicapán</option>
-                                            <option value="ZACAPA">Zacapa</option>
-                                        </select>
-                                    </div>
-                                    {state.errors?.department && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.department.join(', ')}</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Selección del Rol Primario */}
-                            <div className="pt-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2.5">
-                                    Objetivo principal en la plataforma
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* NIT Field */}
+                            <div>
+                                <label htmlFor="nit" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    NIT (Identificación Tributaria)
                                 </label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <label className="cursor-pointer group">
-                                        <input type="radio" name="role" value="BUYER" className="peer sr-only" defaultChecked />
-                                        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-4 hover:border-blue-500/50 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition-all text-center">
-                                            <span className="block text-sm font-bold text-slate-900 dark:text-white">Comprador Corporativo</span>
-                                            <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Solicitar cotizaciones</span>
-                                        </div>
-                                    </label>
-
-                                    <label className="cursor-pointer group">
-                                        <input type="radio" name="role" value="SUPPLIER" className="peer sr-only" />
-                                        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-4 hover:border-blue-500/50 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition-all text-center">
-                                            <span className="block text-sm font-bold text-slate-900 dark:text-white">Proveedor</span>
-                                            <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Atender cotizaciones</span>
-                                        </div>
-                                    </label>
+                                <div className="mt-1.5">
+                                    <input
+                                        type="text"
+                                        name="nit"
+                                        id="nit"
+                                        className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
+                                        placeholder="Ej. 1234567-8"
+                                    />
                                 </div>
+                                {state.errors?.nit && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.nit.join(', ')}</p>
+                                )}
                             </div>
 
-                            <div className="pt-4">
-                                <Button
-                                    type="button"
-                                    onClick={nextStep}
-                                    className="w-full flex justify-center py-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5 transition-all group"
-                                >
-                                    Siguiente Paso
-                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </Button>
+                            {/* Industry Field */}
+                            <div>
+                                <label htmlFor="industry" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Sector Industrial
+                                </label>
+                                <div className="mt-1.5">
+                                    <select
+                                        id="industry"
+                                        name="industry"
+                                        className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
+                                    >
+                                        <option value="">Seleccione el sector...</option>
+                                        <option value="AGRICULTURA">Agricultura</option>
+                                        <option value="CONSTRUCCION">Construcción</option>
+                                        <option value="ESTADO_GOBIERNO">Entidad Gubernamental</option>
+                                        <option value="MANUFACTURA">Manufactura y Producción</option>
+                                        <option value="MEDICAL_SALUD">Salud y Servicios Médicos</option>
+                                        <option value="RETAIL_COMERCIO">Comercio Minorista / Mayorista</option>
+                                        <option value="SERVICIOS_PROFESIONALES">Servicios Profesionales</option>
+                                        <option value="TECNOLOGIA">Tecnología de la Información</option>
+                                        <option value="TRANSPORTE_LOGISTICA">Transporte y Logística</option>
+                                        <option value="OTRO">Otro sector corporativo</option>
+                                    </select>
+                                </div>
+                                {state.errors?.industry && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.industry.join(', ')}</p>
+                                )}
                             </div>
-                        </motion.div>
-                    )}
 
-                    {step === 2 && (
-                        <motion.div
-                            key="step2"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
-                        >
+                            {/* Company Name Field */}
+                            <div>
+                                <label htmlFor="companyName" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Razón Social
+                                </label>
+                                <div className="mt-1.5">
+                                    <input
+                                        type="text"
+                                        name="companyName"
+                                        id="companyName"
+                                        className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
+                                        placeholder="Ej. Constructora Los Andes"
+                                    />
+                                </div>
+                                {state.errors?.companyName && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.companyName.join(', ')}</p>
+                                )}
+                            </div>
+
+                            {/* Department Field */}
+                            <div>
+                                <label htmlFor="department" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Ubicación (Sede)
+                                </label>
+                                <div className="mt-1.5">
+                                    <select
+                                        id="department"
+                                        name="department"
+                                        className="focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl dark:bg-slate-900 dark:text-white py-2.5 px-4 transition-all"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="GUATEMALA">Guatemala</option>
+                                        <option value="ALTA_VERAPAZ">Alta Verapaz</option>
+                                        <option value="BAJA_VERAPAZ">Baja Verapaz</option>
+                                        <option value="CHIMALTENANGO">Chimaltenango</option>
+                                        <option value="CHIQUIMULA">Chiquimula</option>
+                                        <option value="EL_PROGRESO">El Progreso</option>
+                                        <option value="ESCUINTLA">Escuintla</option>
+                                        <option value="HUEHUETENANGO">Huehuetenango</option>
+                                        <option value="IZABAL">Izabal</option>
+                                        <option value="JALAPA">Jalapa</option>
+                                        <option value="JUTIAPA">Jutiapa</option>
+                                        <option value="PETEN">Petén</option>
+                                        <option value="QUETZALTENANGO">Quetzaltenango</option>
+                                        <option value="QUICHE">Quiché</option>
+                                        <option value="RETALHULEU">Retalhuleu</option>
+                                        <option value="SACATEPEQUEZ">Sacatepéquez</option>
+                                        <option value="SAN_MARCOS">San Marcos</option>
+                                        <option value="SANTA_ROSA">Santa Rosa</option>
+                                        <option value="SOLOLA">Sololá</option>
+                                        <option value="SUCHITEPEQUEZ">Suchitepéquez</option>
+                                        <option value="TOTONICAPAN">Totonicapán</option>
+                                        <option value="ZACAPA">Zacapa</option>
+                                    </select>
+                                </div>
+                                {state.errors?.department && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{state.errors.department.join(', ')}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Selección del Rol Primario */}
+                        <div className="pt-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2.5">
+                                Objetivo principal en la plataforma
+                            </label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <label className="cursor-pointer group">
+                                    <input type="radio" name="role" value="BUYER" className="peer sr-only" defaultChecked />
+                                    <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-4 hover:border-blue-500/50 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition-all text-center">
+                                        <span className="block text-sm font-bold text-slate-900 dark:text-white">Comprador Corporativo</span>
+                                        <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Solicitar cotizaciones</span>
+                                    </div>
+                                </label>
+
+                                <label className="cursor-pointer group">
+                                    <input type="radio" name="role" value="SUPPLIER" className="peer sr-only" />
+                                    <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-4 hover:border-blue-500/50 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition-all text-center">
+                                        <span className="block text-sm font-bold text-slate-900 dark:text-white">Proveedor</span>
+                                        <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Atender cotizaciones</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <Button
+                                type="button"
+                                onClick={nextStep}
+                                className="w-full flex justify-center py-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5 transition-all group"
+                            >
+                                Siguiente Paso
+                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Step 2 - Always in DOM, hidden when not active */}
+                <div className={step === 2 ? 'block' : 'hidden'}>
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-6"
+                    >
                             {invitation && (
                                 <div className="mb-6 bg-blue-50/80 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 p-4 rounded-xl backdrop-blur-sm">
                                     <div className="flex gap-3">
@@ -388,8 +381,7 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                                 </Button>
                             </div>
                         </motion.div>
-                    )}
-                </AnimatePresence>
+                    </div>
             </form>
 
             <div className="mt-8 border-t border-slate-100 dark:border-white/5 pt-8">

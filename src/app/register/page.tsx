@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 import RegisterForm from './register-form'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import Footer from '@/components/layout/footer'
+
 
 export default async function RegisterPage({
     searchParams
@@ -122,7 +122,7 @@ export default async function RegisterPage({
                 </div>
             </main>
             
-            <Footer />
+
         </div>
     )
 }
