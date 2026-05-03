@@ -4,6 +4,7 @@ import "./globals.css";
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NexusChatWrapper } from "@/components/nexus-chat-wrapper";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,14 @@ export default async function RootLayout({
         >
           {children}
           <NexusChatWrapper />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            toastOptions={{
+              style: { fontWeight: 600 },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { AlertCircle, Send, Package, CheckCircle, DollarSign, Clock, FileText, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 const BidItemSchema = z.object({
     rfqItemId: z.string(),
@@ -60,12 +61,20 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
         const result = await createBid(undefined, data)
 
         if (result?.message) {
+            const isSuccess = result.message.includes('éxito')
             setServerMessage({
-                type: result.message.includes('éxito') ? 'success' : 'error',
+                type: isSuccess ? 'success' : 'error',
                 text: result.message
             })
-            if (result.message.includes('éxito')) {
+            if (isSuccess) {
+                toast.success('¡Oferta enviada exitosamente!', {
+                    description: 'Tu cotización fue registrada y será evaluada por el comprador.',
+                })
                 form.reset()
+            } else {
+                toast.error('Error al enviar oferta', {
+                    description: result.message,
+                })
             }
         }
 
