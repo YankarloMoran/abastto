@@ -18,6 +18,10 @@ function downloadCSV(csv: string, filename: string) {
     URL.revokeObjectURL(url)
 }
 
+/**
+ * Botón para exportar todas las licitaciones (RFQs) a formato CSV.
+ * Llama a la Server Action `exportRfqsToCSV` y maneja los estados de carga y error.
+ */
 export function ExportRfqsButton({ className = '' }: { className?: string }) {
     const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
     const [errorMsg, setErrorMsg] = useState('')
@@ -58,6 +62,11 @@ export function ExportRfqsButton({ className = '' }: { className?: string }) {
     )
 }
 
+/**
+ * Botón para exportar las ofertas (Bids) de una licitación específica a formato CSV.
+ * Llama a la Server Action `exportBidsToCSV` usando el ID de la licitación y genera
+ * un archivo con nombre dinámico basado en el título.
+ */
 export function ExportBidsButton({ rfqId, rfqTitle, className = '' }: { rfqId: string, rfqTitle: string, className?: string }) {
     const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 

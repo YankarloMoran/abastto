@@ -24,7 +24,38 @@ const styles = StyleSheet.create({
     footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', color: '#94a3b8', fontSize: 8, borderTopWidth: 1, borderTopColor: '#e2e8f0', paddingTop: 10 }
 })
 
-export const PurchaseOrderPDF = ({ rfq, bid, date }: { rfq: any, bid: any, date: string }) => {
+export interface PDFCompany {
+    name?: string | null
+    nit?: string | null
+}
+
+export interface PDFRfqItem {
+    name?: string | null
+    quantity?: number | null
+    unit?: string | null
+}
+
+export interface PDFBidItem {
+    rfqItem?: PDFRfqItem | null
+    remarks?: string | null
+    unitPrice: number | string | { toString(): string }
+    totalPrice: number | string | { toString(): string }
+}
+
+export interface PDFRfq {
+    id: string
+    title: string
+    company?: PDFCompany | null
+}
+
+export interface PDFBid {
+    amount: number | string | { toString(): string }
+    deliveryLeadTime?: string | null
+    company?: PDFCompany | null
+    items?: PDFBidItem[] | null
+}
+
+export const PurchaseOrderPDF = ({ rfq, bid, date }: { rfq: PDFRfq, bid: PDFBid, date: string }) => {
     const totalAmount = Number(bid.amount)
 
     return (

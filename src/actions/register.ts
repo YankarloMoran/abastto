@@ -34,6 +34,13 @@ export type State = {
     message?: string | null
 }
 
+/**
+ * Server Action para registrar un nuevo usuario en la plataforma.
+ * Actúa de manera dual:
+ * 1. Flujo de Invitación: Si recibe un `inviteToken`, vincula al nuevo usuario a la empresa existente.
+ * 2. Flujo Normal: Si no hay token, crea una nueva Empresa y asiga al usuario como su 'OWNER'.
+ * Ambas operaciones están protegidas por transacciones de base de datos.
+ */
 export async function registerUser(prevState: State, formData: FormData): Promise<State> {
     const inviteToken = formData.get('inviteToken') as string | null
 
@@ -54,6 +61,8 @@ export async function registerUser(prevState: State, formData: FormData): Promis
 
     const { name, email, password, role } = userFields.data
     const hashedPassword = await bcrypt.hash(password, 10)
+
+    let successRedirect = false;
 
     try {
         const existingUser = await prisma.user.findUnique({ where: { email } })
@@ -85,8 +94,7 @@ export async function registerUser(prevState: State, formData: FormData): Promis
                 await tx.invitation.delete({ where: { id: invitation.id } })
             })
 
-            redirect('/login')
-            return {} // Never reached
+            successRedirect = true;
 
         } else {
             // REGULAR FLOW -> Create new company AND User as OWNER
@@ -134,18 +142,19 @@ export async function registerUser(prevState: State, formData: FormData): Promis
                 })
             })
 
-            redirect('/login')
-            return {} // Never reached
+            successRedirect = true;
         }
 
     } catch (error) {
         console.error(error)
-        // Check if it's a redirect error (Next.js throws redirect as an error)
-        if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-            throw error; // Rethrow redirect
-        }
         return {
             message: 'Error de base de datos: No se pudo procesar tu registro.',
         }
     }
+
+    if (successRedirect) {
+        redirect('/login')
+    }
+
+    return {};
 }

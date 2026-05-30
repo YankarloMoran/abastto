@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NexusChatWrapper } from "@/components/nexus-chat-wrapper";
 import { Toaster } from "sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   description: "Plataforma de conexión para proveedores verificados y gestión rápida con copiloto Nexus AI.",
 };
 
+/**
+ * Componente principal de diseño (Layout) que envuelve toda la aplicación.
+ * Configura las fuentes, el tema visual (ThemeProvider), el proveedor de notificaciones (Toaster)
+ * y el contenedor del chat de IA (NexusChatWrapper).
+ * 
+ * @param children - Los componentes hijos (páginas) que se renderizarán dentro del layout.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +38,7 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${jakarta.variable} ${outfit.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

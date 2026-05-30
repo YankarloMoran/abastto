@@ -44,6 +44,11 @@ const STEPS = [
     { id: 3, title: 'Condiciones Comerciales', icon: Settings2, description: 'Plazos y términos de pago' },
 ]
 
+/**
+ * Página cliente para crear una nueva Solicitud de Cotización (RFQ).
+ * Implementa un formulario multipaso (General, Productos, Comerciales)
+ * validado con react-hook-form y zod. Invoca la Server Action `createRfq`.
+ */
 export default function CreateRfqPage() {
     const [isPending, setIsPending] = useState(false)
     const [serverError, setServerError] = useState<string | null>(null)

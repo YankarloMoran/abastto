@@ -4,6 +4,11 @@ import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
+/**
+ * Componente cliente para alternar entre modo claro y oscuro.
+ * Utiliza `next-themes` para integrarse con el DOM y persistir las preferencias del usuario.
+ * Evita el parpadeo asegurándose de que el componente esté montado antes de renderizarse.
+ */
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)

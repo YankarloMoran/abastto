@@ -8,6 +8,12 @@ import { BarChart3, TrendingUp, BrainCircuit, Loader2, AlertCircle, ArrowLeft, F
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+/**
+ * Componente cliente de la página de Análisis Estratégico.
+ * Permite a los usuarios generar un informe financiero y operativo
+ * mediante IA, consumiendo la acción de servidor `generateSpendAnalytics`.
+ * Muestra métricas de ahorro, capital ejecutado y un reporte en Markdown.
+ */
 export default function AnalyticsPageClient() {
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState<any>(null)

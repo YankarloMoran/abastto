@@ -37,6 +37,12 @@ export type State = {
     message?: string | null
 }
 
+/**
+ * Server Action para crear una Solicitud de Cotización (RFQ).
+ * Valida que la empresa del creador esté verificada. Gestiona automáticamente
+ * los permisos: si es Creador/Admin lo publica de inmediato ('OPEN'), de lo contrario
+ * queda pendiente de aprobación jerárquica ('DRAFT_PENDING_APPROVAL').
+ */
 export async function createRfq(prevState: State | undefined, data: any) {
     const session = await auth()
 

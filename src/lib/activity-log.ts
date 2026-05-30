@@ -60,7 +60,7 @@ export async function getActivityLog({
     limit?: number
     offset?: number
 }) {
-    const where: any = {}
+    const where: Prisma.ActivityLogWhereInput = {}
     if (companyId) where.companyId = companyId
     if (userId) where.userId = userId
 

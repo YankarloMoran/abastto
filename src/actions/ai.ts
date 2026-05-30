@@ -5,6 +5,12 @@ import prisma from '@/lib/prisma'
 import { google } from '@ai-sdk/google'
 import { generateText } from 'ai'
 
+/**
+ * Server Actions para Inteligencia Artificial en Abastto.
+ * Implementa el análisis estructurado de ofertas (`analyzeOffers`) y la generación
+ * de reportes de ahorro (`generateSpendAnalytics`) utilizando el modelo 
+ * Gemini 2.5 Flash a través del SDK de Vercel AI.
+ */
 export async function analyzeOffers(rfqId: string) {
     try {
         const session = await auth()

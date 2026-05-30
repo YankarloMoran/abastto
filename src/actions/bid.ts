@@ -31,6 +31,12 @@ export type BidState = {
     message?: string | null
 }
 
+/**
+ * Server Action para enviar una nueva oferta (cotización).
+ * Valida que el usuario sea un proveedor verificado, calcula los montos
+ * totales según las cantidades del RFQ, y registra la oferta en la base de datos
+ * dejando un log de actividad.
+ */
 export async function createBid(prevState: BidState | undefined, data: any) {
     const session = await auth()
 
@@ -135,6 +141,12 @@ export async function createBid(prevState: BidState | undefined, data: any) {
     return { message: 'Oferta enviada con éxito.' }
 }
 
+/**
+ * Server Action para aceptar una oferta (adjudicar).
+ * Verifica que el comprador sea el dueño de la licitación y que la fecha 
+ * límite haya expirado. Ejecuta una transacción (Prisma) para actualizar
+ * la oferta a ACCEPTED, rechazar las demás, y cambiar el estado del RFQ.
+ */
 export async function acceptBid(bidId: string, rfqId: string) {
     const session = await auth()
 

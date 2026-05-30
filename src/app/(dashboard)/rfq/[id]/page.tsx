@@ -20,6 +20,12 @@ import ApproveRfqButton from "./approve-rfq-button"
 import { RfqTimeline } from "@/components/rfq/rfq-timeline"
 import { DeliveryActions } from "@/components/rfq/delivery-actions"
 
+/**
+ * Página de Detalle de Cotización/Licitación (RFQ).
+ * Componente de servidor que muestra toda la información de un requerimiento:
+ * timeline, especificaciones, lista de ofertas (compradores), o formulario de
+ * postulación (proveedores). Incluye el foro de preguntas (Q&A) y validación de permisos.
+ */
 export default async function RfqDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = await params
     const session = await auth()

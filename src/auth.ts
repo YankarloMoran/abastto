@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import prisma from "@/lib/prisma"
@@ -21,7 +20,6 @@ async function getUser(email: string) {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig,
-    adapter: PrismaAdapter(prisma) as any,
     session: { strategy: "jwt" }, // Credentials provider requires JWT strategy
     providers: [
         Credentials({

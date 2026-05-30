@@ -124,15 +124,15 @@ export function HeroGraphic() {
             key={i}
             className="absolute w-1.5 h-1.5 bg-blue-400/40 dark:bg-blue-400/30 rounded-full"
             style={{
-              top: `${20 + Math.random() * 60}%`,
-              left: `${10 + Math.random() * 80}%`,
+              top: `${20 + ((i * 17) % 61)}%`,
+              left: `${10 + ((i * 23) % 81)}%`,
             }}
             animate={{
               opacity: [0.3, 0.8, 0.3],
               scale: [1, 1.5, 1],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 3 + (i % 3) * 0.7,
               repeat: Infinity,
               delay: i * 0.4,
             }}

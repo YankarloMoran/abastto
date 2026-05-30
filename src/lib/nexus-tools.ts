@@ -1,3 +1,11 @@
+/**
+ * Herramientas (Tools) para el Agente IA Nexus de Abastto.
+ * Define las funciones (habilidades) que el modelo LLM puede ejecutar autónomamente
+ * para responder a los usuarios. Se divide en dos sets:
+ * 1. `getAuthenticatedTools`: Requiere contexto de usuario para consultar base de datos
+ *    (RFQs, Estadísticas, Alertas, Resúmenes Financieros).
+ * 2. `getPublicTools`: Respuestas estáticas para visitantes en la Landing Page (FAQs).
+ */
 import { tool } from 'ai'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'

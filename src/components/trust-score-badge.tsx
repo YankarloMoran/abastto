@@ -2,6 +2,12 @@ import prisma from '@/lib/prisma'
 import { Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
+/**
+ * Componente de servidor que calcula y muestra el Índice de Confianza (Trust Score)
+ * de una empresa dentro de un Badge (etiqueta).
+ * Consulta las reseñas agregadas desde PostgreSQL, calcula el promedio global 
+ * de los 4 pilares de evaluación y asigna un color semántico.
+ */
 export async function TrustScoreBadge({ companyId, className = "" }: { companyId: string, className?: string }) {
     // Agregar las métricas agregadas directamente desde PostgreSQL
     const stats = await prisma.review.aggregate({

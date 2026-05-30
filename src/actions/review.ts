@@ -16,6 +16,12 @@ const ReviewSchema = z.object({
     comment: z.string().optional()
 })
 
+/**
+ * Server Action para emitir una calificación comercial (Reseña).
+ * Valida que la licitación esté en un estado terminal (entregada/cerrada)
+ * y que quien califica sea legítimamente el comprador o el proveedor adjudicado.
+ * Evalúa 4 pilares y guarda el registro para alimentar el Trust Score.
+ */
 export async function createReview(prevState: any, data: any) {
     const session = await auth()
 

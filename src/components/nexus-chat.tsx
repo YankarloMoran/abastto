@@ -18,12 +18,25 @@ interface Conversation {
   updatedAt: string
 }
 
+interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant' | 'system' | 'data' | 'tool'
+  content: string
+  parts?: Array<{ type: string; text?: string; toolInvocation?: any }>
+}
+
 interface NexusChatProps {
   userName?: string | null
   isAuthenticated?: boolean
 }
 
 // ─── Main Component ──────────────────────────────────────
+/**
+ * Componente cliente para el Chatbot con IA "Nexus".
+ * Utiliza @ai-sdk/react para conectarse a las rutas de Vercel AI.
+ * Maneja estados de UI flotante (Framer Motion), renderizado de Markdown, 
+ * autoscroll, e historial de conversaciones si el usuario está autenticado.
+ */
 export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
@@ -35,9 +48,10 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Ref to hold the conversationId setter (avoids stale closures in fetch)
-  // Ref to hold the conversationId setter (avoids stale closures in fetch)
   const conversationIdRef = useRef<string | null>(null)
-  conversationIdRef.current = conversationId
+  useEffect(() => {
+    conversationIdRef.current = conversationId
+  }, [conversationId])
 
   const {
     messages,
@@ -161,7 +175,7 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
   // No client-side auto-trigger needed
 
   // Extract text content from message parts
-  const getMessageText = (message: { content?: string; parts?: Array<{ type: string; text?: string }> }) => {
+  const getMessageText = (message: ChatMessage) => {
     let textStr = ''
     if (message.parts && message.parts.length > 0) {
       textStr = message.parts
@@ -349,7 +363,7 @@ export function NexusChat({ userName, isAuthenticated = false }: NexusChatProps)
 
                   {messages
                     .map((message) => {
-                    const text = getMessageText(message as any)
+                    const text = getMessageText(message as unknown as ChatMessage)
                     if (!text) return null
 
                     return (

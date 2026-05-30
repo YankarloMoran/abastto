@@ -12,6 +12,12 @@ interface SearchResult {
     href: string
 }
 
+/**
+ * Componente cliente para búsqueda global interactiva tipo "Command Menu".
+ * Se puede invocar con el atajo de teclado (Ctrl+K o Cmd+K) o haciendo clic.
+ * Consulta al servidor (`/api/search`) con debounce y permite navegar
+ * los resultados con el teclado.
+ */
 export function SearchCommand() {
     const [isOpen, setIsOpen] = useState(false)
     const [query, setQuery] = useState('')

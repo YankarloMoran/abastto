@@ -17,6 +17,14 @@ const staggerContainer: Variants = {
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
+/**
+ * Componente que anima un número incrementándolo gradualmente desde 0 hasta el valor objetivo.
+ * Se utiliza en la sección de estadísticas para mostrar los números de manera dinámica al hacer scroll.
+ * 
+ * @param target - El número final al que debe llegar el contador.
+ * @param suffix - Texto opcional que se añade después del número (ej. "+", "%").
+ * @param prefix - Texto opcional que se añade antes del número (ej. "Q").
+ */
 function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -36,12 +44,11 @@ function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number;
   return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
 }
 
-const steps = [
-  { num: "01", title: "Publique su requerimiento", desc: "Describa su necesidad a través de nuestro formulario inteligente. Adjunte especificaciones y defina su presupuesto.", icon: FileText, color: "blue" },
-  { num: "02", title: "Reciba propuestas", desc: "Proveedores verificados responderán con ofertas competitivas en cuestión de minutos.", icon: Users, color: "indigo" },
-  { num: "03", title: "Compare y decida", desc: "Nexus AI le asiste en el análisis de propuestas para identificar la mejor opción y formalizar el acuerdo.", icon: Sparkles, color: "violet" },
-];
-
+/**
+ * Componente principal de la página de inicio (Landing Page) de Abastto.
+ * Muestra las secciones clave de la plataforma: Hero, Estadísticas, Características, 
+ * Cómo Funciona, Red de Proveedores y Precios.
+ */
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0a0f1c] text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 overflow-x-hidden font-sans scroll-smooth">
@@ -50,27 +57,40 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center">
         {/* ═══════════════ HERO ═══════════════ */}
         <section className="relative w-full max-w-7xl mx-auto px-6 xl:px-8 py-20 lg:py-32 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500/10 dark:bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
+          {/* Animated Background Orbs */}
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} 
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-20 -left-20 w-96 h-96 bg-blue-600/20 dark:bg-blue-600/30 blur-[120px] rounded-full pointer-events-none" 
+          />
+          <motion.div 
+            animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }} 
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-40 right-10 lg:right-1/4 w-80 h-80 bg-violet-600/20 dark:bg-violet-600/20 blur-[100px] rounded-full pointer-events-none" 
+          />
+
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="space-y-8 text-center lg:text-left z-10">
-            <motion.div variants={fadeIn} className="inline-block px-4 py-2 bg-blue-100/50 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 font-medium text-sm border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-md">
-              La red de negocios líder en Guatemala
+            <motion.div variants={fadeIn} className="inline-block px-5 py-2 bg-white/40 dark:bg-white/5 rounded-full text-blue-700 dark:text-blue-300 font-medium text-sm border border-slate-200/50 dark:border-white/10 backdrop-blur-md shadow-sm">
+              ✨ La red de negocios líder en Guatemala
             </motion.div>
-            <motion.h1 variants={fadeIn} className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
-              La red conectada para el <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-sky-500 dark:from-blue-400 dark:to-sky-400">crecimiento de su empresa</span>
+            <motion.h1 variants={fadeIn} className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] font-outfit">
+              La red conectada para el <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-300">crecimiento de su empresa</span>
             </motion.h1>
-            <motion.p variants={fadeIn} className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0">
+            <motion.p variants={fadeIn} className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0 font-medium">
               Encuentre proveedores, gestione presupuestos al instante y organice todos sus requerimientos comerciales en un solo lugar — potenciado por inteligencia artificial.
             </motion.p>
-            <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              <Link href="/register" className="group px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-500 hover:-translate-y-1 transition-all shadow-[0_10px_20px_rgba(37,99,235,0.2)] flex items-center gap-3 w-full sm:w-auto justify-center">
-                Unirse a la red <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-6">
+              <Link href="/register" className="group relative px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-2xl hover:bg-blue-500 hover:-translate-y-1 transition-all flex items-center gap-3 w-full sm:w-auto justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative z-10 flex items-center gap-2">Unirse a la red <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" /></span>
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-sky-400 rounded-2xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-500" />
               </Link>
-              <Link href="#features" className="px-8 py-4 text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-all w-full sm:w-auto justify-center flex backdrop-blur-sm">
+              <Link href="#features" className="px-8 py-4 text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-white dark:hover:bg-white/10 hover:-translate-y-1 transition-all w-full sm:w-auto justify-center flex backdrop-blur-md shadow-sm">
                 Descubre más
               </Link>
             </motion.div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2 }} className="relative h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none lg:pointer-events-auto">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.3 }} className="relative h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none lg:pointer-events-auto">
             <HeroGraphic />
           </motion.div>
         </section>
@@ -97,24 +117,28 @@ export default function Home() {
         </section>
 
         {/* ═══════════════ FEATURES ═══════════════ */}
-        <section id="features" className="w-full relative bg-slate-50 dark:bg-[#0a0f1c] transition-colors scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 xl:px-8 py-24">
+        <section id="features" className="w-full relative bg-slate-50 dark:bg-[#060b14] transition-colors scroll-mt-20 overflow-hidden">
+          {/* subtle background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 dark:bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
+          
+          <div className="max-w-7xl mx-auto px-6 xl:px-8 py-24 relative z-10">
             <div className="text-center mb-16 space-y-4">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Todo lo que su organización necesita, <span className="text-blue-600 dark:text-blue-400">simplificado</span></h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Nuestra plataforma está diseñada para optimizar sus procesos y ahorrar tiempo en cada gestión comercial.</p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-outfit">Todo lo que su organización necesita, <span className="text-blue-600 dark:text-blue-400">simplificado</span></h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium">Nuestra plataforma está diseñada para optimizar sus procesos y ahorrar tiempo en cada gestión comercial.</p>
             </div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               {[
-                { icon: ShieldCheck, title: "Proveedores Verificados", desc: "Acceda a una red de empresas de confianza para asegurar la calidad de sus suministros sin riesgos innecesarios.", color: "blue" },
-                { icon: Zap, title: "Gestión Eficiente", desc: "Envíe sus requerimientos y reciba propuestas rápidamente, optimizando sus canales de comunicación.", color: "indigo" },
-                { icon: BarChart3, title: "Seguimiento Integral", desc: "Supervise sus pedidos y el estado de sus transacciones desde un panel claro y organizado.", color: "violet" },
+                { icon: ShieldCheck, title: "Proveedores Verificados", desc: "Acceda a una red de empresas de confianza para asegurar la calidad de sus suministros sin riesgos innecesarios.", colorClasses: "text-blue-600 dark:text-blue-400 group-hover:text-blue-500", bgClasses: "bg-blue-100 dark:bg-blue-500/10 group-hover:bg-blue-600", borderHover: "hover:border-blue-500/30", shadowHover: "hover:shadow-blue-500/20" },
+                { icon: Zap, title: "Gestión Eficiente", desc: "Envíe sus requerimientos y reciba propuestas rápidamente, optimizando sus canales de comunicación.", colorClasses: "text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500", bgClasses: "bg-indigo-100 dark:bg-indigo-500/10 group-hover:bg-indigo-600", borderHover: "hover:border-indigo-500/30", shadowHover: "hover:shadow-indigo-500/20" },
+                { icon: BarChart3, title: "Seguimiento Integral", desc: "Supervise sus pedidos y el estado de sus transacciones desde un panel claro y organizado.", colorClasses: "text-violet-600 dark:text-violet-400 group-hover:text-violet-500", bgClasses: "bg-violet-100 dark:bg-violet-500/10 group-hover:bg-violet-600", borderHover: "hover:border-violet-500/30", shadowHover: "hover:shadow-violet-500/20" },
               ].map((f, i) => (
-                <motion.div key={i} variants={fadeIn} className={`p-8 bg-white dark:bg-[#111827] rounded-3xl border border-slate-100 dark:border-white/5 hover:border-${f.color}-500/30 hover:shadow-2xl hover:shadow-${f.color}-500/10 hover:-translate-y-2 transition-all duration-300 group`}>
-                  <div className={`h-14 w-14 bg-${f.color}-100 dark:bg-${f.color}-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-${f.color}-600 group-hover:scale-110 transition-all duration-300`}>
-                    <f.icon className={`h-7 w-7 text-${f.color}-600 dark:text-${f.color}-400 group-hover:text-white transition-colors`} />
+                <motion.div key={i} variants={fadeIn} className={`p-8 bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-white/10 ${f.borderHover} hover:shadow-2xl ${f.shadowHover} hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden`}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className={`h-14 w-14 ${f.bgClasses} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 relative z-10 shadow-inner`}>
+                    <f.icon className={`h-7 w-7 ${f.colorClasses} group-hover:text-white transition-colors duration-300`} />
                   </div>
-                  <h3 className="text-2xl font-bold mb-3">{f.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{f.desc}</p>
+                  <h3 className="text-2xl font-bold mb-3 font-outfit relative z-10">{f.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium relative z-10">{f.desc}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -122,23 +146,27 @@ export default function Home() {
         </section>
 
         {/* ═══════════════ CÓMO FUNCIONA ═══════════════ */}
-        <section id="como-funciona" className="w-full bg-white dark:bg-[#0d1323] border-t border-slate-200 dark:border-slate-800/80 scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 xl:px-8 py-24">
+        <section id="como-funciona" className="w-full bg-white dark:bg-[#030712] border-t border-slate-200 dark:border-white/5 scroll-mt-20 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 xl:px-8 py-24 relative z-10">
             <div className="text-center mb-16 space-y-4">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Tan simple como <span className="text-blue-600 dark:text-blue-400">1, 2, 3</span></h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Desde la solicitud hasta la adjudicación, todo fluye en minutos.</p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-outfit">Tan simple como <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-500 dark:from-blue-400 dark:to-violet-400">1, 2, 3</span></h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium">Desde la solicitud hasta la adjudicación, todo fluye en minutos.</p>
             </div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
               {/* Connecting line (desktop) */}
-              <div className="hidden md:block absolute top-24 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 dark:from-blue-700 dark:via-indigo-700 dark:to-violet-700" />
-              {steps.map((s, i) => (
+              <div className="hidden md:block absolute top-24 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 dark:from-blue-900/50 dark:via-indigo-900/50 dark:to-violet-900/50" />
+              {[
+                { num: "01", title: "Publique su requerimiento", desc: "Describa su necesidad a través de nuestro formulario inteligente. Adjunte especificaciones y defina su presupuesto.", icon: FileText, colorClasses: "text-blue-600 dark:text-blue-400", bgClasses: "bg-blue-100 dark:bg-blue-500/10 group-hover:bg-blue-600" },
+                { num: "02", title: "Reciba propuestas", desc: "Proveedores verificados responderán con ofertas competitivas en cuestión de minutos.", icon: Users, colorClasses: "text-indigo-600 dark:text-indigo-400", bgClasses: "bg-indigo-100 dark:bg-indigo-500/10 group-hover:bg-indigo-600" },
+                { num: "03", title: "Compare y decida", desc: "Nexus AI le asiste en el análisis de propuestas para identificar la mejor opción y formalizar el acuerdo.", icon: Sparkles, colorClasses: "text-violet-600 dark:text-violet-400", bgClasses: "bg-violet-100 dark:bg-violet-500/10 group-hover:bg-violet-600" },
+              ].map((s, i) => (
                 <motion.div key={i} variants={fadeIn} className="relative text-center group">
-                  <div className={`mx-auto w-16 h-16 bg-${s.color}-100 dark:bg-${s.color}-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-${s.color}-600 group-hover:scale-110 transition-all duration-300 relative z-10 border-4 border-white dark:border-[#0d1323]`}>
-                    <s.icon className={`h-7 w-7 text-${s.color}-600 dark:text-${s.color}-400 group-hover:text-white transition-colors`} />
+                  <div className={`mx-auto w-20 h-20 ${s.bgClasses} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 relative z-10 border-4 border-white dark:border-[#030712] shadow-lg shadow-blue-500/5`}>
+                    <s.icon className={`h-8 w-8 ${s.colorClasses} group-hover:text-white transition-colors duration-300`} />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-widest text-slate-300 dark:text-slate-600 mb-2 block">Paso {s.num}</span>
-                  <h3 className="text-xl font-bold mb-3">{s.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 block">Paso {s.num}</span>
+                  <h3 className="text-xl font-bold mb-3 font-outfit">{s.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto font-medium">{s.desc}</p>
                 </motion.div>
               ))}
             </motion.div>

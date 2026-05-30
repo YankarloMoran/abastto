@@ -83,6 +83,11 @@ const colorMap: Record<string, { bg: string; icon: string; border: string }> = {
     violet: { bg: 'bg-violet-50 dark:bg-violet-900/20', icon: 'text-violet-600 dark:text-violet-400', border: 'border-violet-200 dark:border-violet-800' },
 }
 
+/**
+ * Componente cliente que guía a los nuevos usuarios a través de las funciones
+ * principales de la plataforma. Adapta dinámicamente sus pasos de acuerdo al
+ * rol (`BUYER` o `SUPPLIER`) y llama a la Server Action `completeOnboarding` al finalizar.
+ */
 export function OnboardingWizard({ userName, userRole }: OnboardingWizardProps) {
     const [currentStep, setCurrentStep] = useState(0)
     const [isVisible, setIsVisible] = useState(true)

@@ -4,6 +4,12 @@ import prisma from "@/lib/prisma"
 import CompanyProfileForm from "./profile-form"
 import { TrustScoreBadge } from "@/components/trust-score-badge"
 
+/**
+ * Página de Configuración (Perfil de Empresa).
+ * Obtiene la información actual de la empresa desde la base de datos
+ * y evalúa si el usuario activo tiene permisos de edición.
+ * Renderiza el formulario `CompanyProfileForm` en modo edición o solo lectura.
+ */
 export default async function SettingsProfilePage() {
     const session = await auth()
 

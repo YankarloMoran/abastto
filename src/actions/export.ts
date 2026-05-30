@@ -3,6 +3,12 @@
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
 
+/**
+ * Server Actions para la exportación de datos a formato CSV.
+ * Contiene la lógica para recuperar licitaciones (`exportRfqsToCSV`) y ofertas
+ * (`exportBidsToCSV`) de la base de datos, formatearlas con separadores por comas 
+ * y devolver el string crudo para su descarga en el cliente.
+ */
 export async function exportRfqsToCSV(): Promise<{ success: boolean, csv?: string, message?: string }> {
     const session = await auth()
 

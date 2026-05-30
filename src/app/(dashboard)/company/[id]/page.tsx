@@ -27,6 +27,12 @@ const LOCATION_LABELS: Record<string, string> = {
     TOTONICAPAN: 'Totonicapán', ZACAPA: 'Zacapa',
 }
 
+/**
+ * Página de Perfil Público de Empresa.
+ * Muestra el perfil público de una empresa en la red, calculando métricas
+ * en tiempo real como su nivel de confianza (basado en reseñas de 4 dimensiones),
+ * transacciones realizadas y estado de verificación KYC.
+ */
 export default async function CompanyProfilePage({
     params
 }: {

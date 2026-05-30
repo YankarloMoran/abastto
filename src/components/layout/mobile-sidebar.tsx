@@ -20,8 +20,10 @@ export function MobileSidebar({ isBuyer, userName, userRole }: MobileSidebarProp
 
     // Close sidebar on route change
     useEffect(() => {
-        setIsOpen(false)
-    }, [pathname])
+        if (isOpen) {
+            setIsOpen(false)
+        }
+    }, [pathname, isOpen])
 
     // Prevent body scroll when sidebar is open
     useEffect(() => {

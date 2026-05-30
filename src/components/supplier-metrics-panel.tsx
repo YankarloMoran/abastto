@@ -76,6 +76,11 @@ function RatingBar({ label, value, color }: { label: string, value: number, colo
     )
 }
 
+/**
+ * Panel de servidor que muestra los Indicadores Clave de Rendimiento (KPIs)
+ * de un proveedor: total de licitaciones, tasa de éxito (win rate), adjudicadas,
+ * y un desglose visual mediante barras de progreso para cada dimensión de sus reseñas.
+ */
 export async function SupplierMetricsPanel({ companyId, className = '' }: { companyId: string, className?: string }) {
     const metrics = await getSupplierMetrics(companyId)
 

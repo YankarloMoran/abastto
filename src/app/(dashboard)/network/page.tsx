@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { INDUSTRY_LABELS, LOCATION_LABELS } from "@/lib/constants"
 
+/**
+ * Página de Red de Empresas (Network).
+ * Componente de servidor que muestra una lista de empresas registradas (excluyendo
+ * a la del usuario actual). Soporta filtros por texto, industria y verificación.
+ * Calcula en tiempo real un puntaje de confianza basado en las reseñas recibidas.
+ */
 export default async function NetworkPage({
     searchParams
 }: {

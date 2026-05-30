@@ -13,15 +13,21 @@ interface DashboardChartsProps {
     isBuyer: boolean
 }
 
+/**
+ * Componente cliente para visualización de métricas del Dashboard.
+ * Renderiza gráficos interactivos usando Recharts (Área para tendencias mensuales
+ * y Anillo para distribución de estados). Los títulos y datos se adaptan 
+ * dependiendo de si el usuario es comprador o proveedor.
+ */
 export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: DashboardChartsProps) {
     const hasStatusData = rfqsByStatus.some(s => s.value > 0)
     const hasMonthlyData = monthlyData.some(m => m.value > 0)
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 p-5">
             {/* Activity Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-6 flex flex-col">
-                <h2 className="text-[0.65rem] font-black text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-[0.15em]">
+            <div className="flex flex-col">
+                <h2 className="text-[0.65rem] font-black text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-[0.15em] font-outfit">
                     {isBuyer ? 'Gasto Mensual (Q)' : 'Ofertas por Mes'}
                 </h2>
                 {hasMonthlyData ? (
@@ -34,7 +40,7 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                                         <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #f1f5f9)" vertical={false} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #334155)" opacity={0.2} vertical={false} />
                                 <XAxis
                                     dataKey="month"
                                     tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--chart-text, #94a3b8)' }}
@@ -48,13 +54,13 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                                 />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: 'var(--chart-tooltip-bg, #fff)',
-                                        border: '1px solid var(--chart-tooltip-border, #e2e8f0)',
+                                        backgroundColor: 'var(--chart-tooltip-bg, #0a0f1c)',
+                                        border: '1px solid var(--chart-tooltip-border, rgba(255,255,255,0.1))',
                                         borderRadius: '12px',
                                         fontSize: '12px',
                                         fontWeight: 700,
-                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                        color: 'var(--chart-tooltip-text, #0f172a)'
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                                        color: 'var(--chart-tooltip-text, #f8fafc)'
                                     }}
                                     formatter={(value) => [isBuyer ? `Q ${Number(value ?? 0).toLocaleString()}` : `${value ?? 0} ofertas`, '']}
                                 />
@@ -71,15 +77,17 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                         </ResponsiveContainer>
                     </div>
                 ) : (
-                    <div className="h-[160px] flex items-center justify-center">
+                    <div className="h-[160px] flex items-center justify-center bg-slate-50/50 dark:bg-white/5 rounded-2xl border border-slate-200/50 dark:border-white/5">
                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500">Sin datos históricos aún</p>
                     </div>
                 )}
             </div>
 
+            <div className="w-full h-px bg-slate-200/50 dark:bg-white/5 my-2" />
+
             {/* Status Donut */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-6 flex flex-col">
-                <h2 className="text-[0.65rem] font-black text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-[0.15em]">
+            <div className="flex flex-col">
+                <h2 className="text-[0.65rem] font-black text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-[0.15em] font-outfit">
                     {isBuyer ? 'Licitaciones por Estado' : 'Ofertas por Estado'}
                 </h2>
                 {hasStatusData ? (
@@ -95,7 +103,7 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                                         outerRadius={55}
                                         dataKey="value"
                                         strokeWidth={2}
-                                        stroke="var(--chart-pie-stroke, #fff)"
+                                        stroke="var(--chart-pie-stroke, transparent)"
                                     >
                                         {rfqsByStatus.filter(s => s.value > 0).map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -103,13 +111,13 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                                     </Pie>
                                     <Tooltip
                                         contentStyle={{
-                                            backgroundColor: 'var(--chart-tooltip-bg, #fff)',
-                                            border: '1px solid var(--chart-tooltip-border, #e2e8f0)',
+                                            backgroundColor: 'var(--chart-tooltip-bg, #0a0f1c)',
+                                            border: '1px solid var(--chart-tooltip-border, rgba(255,255,255,0.1))',
                                             borderRadius: '12px',
                                             fontSize: '11px',
                                             fontWeight: 700,
-                                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                            color: 'var(--chart-tooltip-text, #0f172a)'
+                                            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                                            color: 'var(--chart-tooltip-text, #f8fafc)'
                                         }}
                                     />
                                 </PieChart>
@@ -126,7 +134,7 @@ export function DashboardCharts({ rfqsByStatus, monthlyData, isBuyer }: Dashboar
                         </div>
                     </div>
                 ) : (
-                    <div className="h-[120px] flex items-center justify-center">
+                    <div className="h-[120px] flex items-center justify-center bg-slate-50/50 dark:bg-white/5 rounded-2xl border border-slate-200/50 dark:border-white/5">
                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500">Sin datos aún</p>
                     </div>
                 )}

@@ -1,19 +1,23 @@
+// Generador del cliente de Prisma
 generator client {
   provider = "prisma-client-js"
 }
 
+// Configuración de la base de datos
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
+// Roles globales de los usuarios en la plataforma
 enum Role {
   BUYER
   SUPPLIER
   ADMIN
 }
 
+// Sectores de la industria a los que puede pertenecer una empresa
 enum IndustrySector {
   AGRICULTURA
   CONSTRUCCION
@@ -53,6 +57,7 @@ enum Location {
   ZACAPA
 }
 
+// Roles de usuario dentro de una compañía específica (permisos de acceso)
 enum CompanyRole {
   OWNER
   ADMIN
@@ -60,6 +65,7 @@ enum CompanyRole {
   VIEWER
 }
 
+// Estados posibles en el ciclo de vida de una Solicitud de Cotización (RFQ)
 enum RfqStatus {
   DRAFT_PENDING_APPROVAL
   OPEN
@@ -70,18 +76,21 @@ enum RfqStatus {
   CLOSED
 }
 
+// Estados de una oferta/cotización (Bid) recibida por un proveedor
 enum BidStatus {
   PENDING
   ACCEPTED
   REJECTED
 }
 
+// Términos de pago aceptados para las transacciones
 enum PaymentTerms {
   CASH
   NET_30
   NET_60
 }
 
+// Categorías principales para clasificar los RFQs
 enum RfqCategory {
   TECH
   OFFICE
@@ -90,6 +99,7 @@ enum RfqCategory {
   OTHER
 }
 
+// Modelo de Empresa (Comprador o Proveedor) en la plataforma
 model Company {
   id         String         @id @default(cuid())
   nit        String         @unique
@@ -113,10 +123,11 @@ model Company {
   receivedMessages Message[]   @relation("ReceivedMessages")
 }
 
+// Documentos legales asociados a una empresa (ej. RTU, Patente)
 model CompanyDocument {
   id        String   @id @default(cuid())
   type      String   // RTU, PATENTE, REPRESENTACION_LEGAL
-  url       String   // Data URL for MVP or S3 URL
+  url       String   // URL de datos o S3
   status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
   
   createdAt DateTime @default(now())
@@ -126,6 +137,7 @@ model CompanyDocument {
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
+// Modelo de Usuario (perteneciente a una Empresa)
 model User {
   id                  String      @id @default(cuid())
   email               String      @unique
@@ -141,6 +153,7 @@ model User {
   company   Company @relation(fields: [companyId], references: [id])
 }
 
+// Modelo de Solicitud de Cotización (Request for Quotation)
 model Rfq {
   id               String        @id @default(cuid())
   title            String
@@ -160,7 +173,7 @@ model Rfq {
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
-  // Delivery tracking
+  // Seguimiento de entrega
   awardedBidId         String?
   deliveryConfirmedAt  DateTime?
   deliveryConfirmedBy  String?
@@ -172,6 +185,7 @@ model Rfq {
   messages  Message[]
 }
 
+// Artículo o ítem específico dentro de un RFQ
 model RfqItem {
   id       String @id @default(cuid())
   name     String
@@ -184,6 +198,7 @@ model RfqItem {
   bidItems BidItem[]
 }
 
+// Oferta o cotización presentada por un proveedor para un RFQ
 model Bid {
   id               String    @id @default(cuid())
   amount           Decimal
@@ -203,6 +218,7 @@ model Bid {
   items BidItem[]
 }
 
+// Desglose de precios para un artículo específico en una oferta
 model BidItem {
   id         String  @id @default(cuid())
   unitPrice  Decimal
@@ -216,6 +232,7 @@ model BidItem {
   rfqItem   RfqItem @relation(fields: [rfqItemId], references: [id], onDelete: Cascade)
 }
 
+// Invitación enviada por email para unirse a una empresa
 model Invitation {
   id        String      @id @default(uuid())
   email     String
@@ -230,6 +247,7 @@ model Invitation {
   @@unique([email, companyId])
 }
 
+// Pregunta de aclaración realizada por un proveedor sobre un RFQ
 model Question {
   id        String   @id @default(cuid())
   content   String
@@ -240,10 +258,11 @@ model Question {
   rfqId     String
   rfq       Rfq      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
 
-  companyId String // The company that asked the question
+  companyId String // La empresa que hizo la pregunta
   company   Company  @relation(fields: [companyId], references: [id])
 }
 
+// Reseña y calificación de una empresa hacia otra tras finalizar un RFQ
 model Review {
   id                    String   @id @default(cuid())
   authorCompanyId       String
@@ -267,6 +286,7 @@ model Review {
   @@unique([authorCompanyId, rfqId])
 }
 
+// Mensajes de chat directo entre comprador y proveedor
 model Message {
   id         String   @id @default(cuid())
   content    String
@@ -282,11 +302,12 @@ model Message {
   receiver   Company  @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }
 
+// Registro de actividades para auditoría y trazabilidad
 model ActivityLog {
   id          String   @id @default(cuid())
   action      String   // RFQ_CREATED, BID_SUBMITTED, BID_ACCEPTED, KYC_SUBMITTED, MEMBER_INVITED, etc.
   description String
-  metadata    Json?    // Extra structured data (rfqId, bidId, etc.)
+  metadata    Json?    // Datos extra estructurados (rfqId, bidId, etc.)
   
   userId      String?
   companyId   String?
@@ -297,11 +318,13 @@ model ActivityLog {
   @@index([userId, createdAt])
 }
 
-// ─── Nexus AI Agent Chat ─────────────────────────────────
+// ─── Chat del Agente de Inteligencia Artificial (Nexus) ─────────────────────────────────
+
+// Sesión de conversación con el Agente AI
 model NexusConversation {
   id        String   @id @default(cuid())
   title     String?
-  userId    String?  // null for unauthenticated landing page users
+  userId    String?  // Nulo para usuarios no autenticados en la landing page
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -310,6 +333,7 @@ model NexusConversation {
   @@index([userId, updatedAt])
 }
 
+// Mensaje individual dentro de una conversación con el Agente AI
 model NexusMessage {
   id             String   @id @default(cuid())
   role           String   // "user" | "assistant" | "system" | "tool"

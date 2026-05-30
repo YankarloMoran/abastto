@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { redirect } from "next/navigation"
 
+/**
+ * Página del Centro de Notificaciones.
+ * Genera de forma dinámica una lista de notificaciones basadas en los datos recientes:
+ * - Para Compradores: Avisa de nuevas ofertas en sus RFQs y cierres próximos.
+ * - Para Proveedores: Avisa de ofertas aceptadas y nuevas RFQs disponibles.
+ * Ordena las alertas por urgencia y fecha.
+ */
 export default async function NotificationsPage() {
     const session = await auth()
     if (!session?.user?.id || !session.user.companyId) redirect('/login')

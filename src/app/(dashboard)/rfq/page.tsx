@@ -9,6 +9,13 @@ import { ExportRfqsButton } from "@/components/export-buttons"
 
 const ITEMS_PER_PAGE = 10
 
+/**
+ * Página del listado principal de Licitaciones / Oportunidades (RFQs).
+ * Muestra una tabla paginada con filtros por estado, categoría y texto.
+ * La vista cambia según el rol:
+ * - Compradores ven sus propias licitaciones.
+ * - Proveedores ven licitaciones abiertas o en las que han participado.
+ */
 export default async function RfqListPage({
     searchParams
 }: {
@@ -88,29 +95,32 @@ export default async function RfqListPage({
                 </header>
 
                 {/* Filters bar */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
                     {/* Search */}
-                    <div className="relative flex-1 max-w-sm">
-                        <form>
+                    <div className="relative w-full md:max-w-xs shrink-0">
+                        <form className="relative flex items-center">
                             <input
                                 type="text"
                                 name="q"
                                 defaultValue={searchQuery}
                                 placeholder="Filtrar por título..."
-                                className="w-full bg-white dark:bg-slate-900 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-4 pr-4 py-2.5 outline-none border border-slate-200 dark:border-white/10 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
+                                className="w-full bg-white dark:bg-[#0a0f1c]/50 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-4 pr-12 py-2.5 outline-none border border-slate-200/55 dark:border-white/10 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all backdrop-blur-md"
                             />
+                            <button type="submit" className="absolute right-2 p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            </button>
                         </form>
                     </div>
 
                     {/* Status filter */}
                     <div className="flex items-center gap-2 flex-wrap">
-                        <Filter className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 hidden sm:block" />
+                        <Filter className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 hidden md:block" />
                         {['ALL', 'OPEN', 'EVALUATING', 'CLOSED', ...(isBuyer ? ['DRAFT_PENDING_APPROVAL'] : [])].map(status => (
                             <Link key={status} href={buildUrl({ status, page: '1' })}>
                                 <button className={`px-3 py-1.5 text-[0.7rem] font-bold rounded-lg border transition-all cursor-pointer ${
                                     statusFilter === status
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
+                                        : 'bg-white dark:bg-[#0a0f1c]/50 text-slate-600 dark:text-slate-400 border-slate-200/55 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
                                 }`}>
                                     {status === 'ALL' ? 'Todas' : STATUS_LABELS[status]?.label || status}
                                 </button>
@@ -118,22 +128,20 @@ export default async function RfqListPage({
                         ))}
                     </div>
 
-                    {/* Category filter - uses link-based navigation */}
-                    {isBuyer && (
-                        <div className="flex items-center gap-1 flex-wrap">
-                            {['ALL', 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'].map(cat => (
-                                <Link key={cat} href={buildUrl({ category: cat, page: '1' })}>
-                                    <button className={`px-3 py-1.5 text-[0.7rem] font-bold rounded-lg border transition-all cursor-pointer ${
-                                        categoryFilter === cat
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                            : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
-                                    }`}>
-                                        {cat === 'ALL' ? 'Todas' : CATEGORY_LABELS[cat] || cat}
-                                    </button>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
+                    {/* Category filter - visible for all */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        {['ALL', 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'].map(cat => (
+                            <Link key={cat} href={buildUrl({ category: cat, page: '1' })}>
+                                <button className={`px-3 py-1.5 text-[0.7rem] font-bold rounded-lg border transition-all cursor-pointer ${
+                                    categoryFilter === cat
+                                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                        : 'bg-white dark:bg-[#0a0f1c]/50 text-slate-600 dark:text-slate-400 border-slate-200/55 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
+                                }`}>
+                                    {cat === 'ALL' ? 'Todas Cat.' : CATEGORY_LABELS[cat] || cat}
+                                </button>
+                            </Link>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -198,8 +206,11 @@ export default async function RfqListPage({
                                                         {statusInfo.label}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-6 sm:px-8 py-5 text-right font-black text-slate-900 dark:text-white tabular-nums">
-                                                    {isBuyer ? `${rfq._count.bids} oferta${rfq._count.bids !== 1 ? 's' : ''}` : 'Ver detalles'}
+                                                <td className="px-6 sm:px-8 py-5 text-right font-black text-slate-900 dark:text-white tabular-nums text-sm">
+                                                    {isBuyer 
+                                                        ? `${rfq._count.bids} oferta${rfq._count.bids !== 1 ? 's' : ''}` 
+                                                        : `Q ${Number(rfq.budget).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                                                    }
                                                 </td>
                                                 <td className="px-6 sm:px-8 py-5 text-right">
                                                     <Link href={`/rfq/${rfq.id}`}>
