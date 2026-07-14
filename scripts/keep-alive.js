@@ -10,6 +10,11 @@ const projects = [
     name: 'Karta',
     url: 'https://saicmwqgfhpwuyxckdnw.supabase.co/auth/v1/health',
     apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhaWNtd3FnZmhwd3V5eGNrZG53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTI0MDUsImV4cCI6MjA5MDMyODQwNX0.ydcdL88knPuyflI5DQ5T9D8-4OgfsOt4Vmkr8KSQagk'
+  },
+  {
+    name: 'Taxio',
+    url: 'https://akkoygzijpwhhegsfxmv.supabase.co/auth/v1/health',
+    apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFra295Z3ppanB3aGhlZ3NmeG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTcyNzksImV4cCI6MjA5MTU5MzI3OX0.fbkVC6DpKdEt5HfVFoUdbnux3jowqnlVZbWp0kx1pVc'
   }
 ];
 
