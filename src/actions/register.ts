@@ -130,12 +130,14 @@ export async function registerUser(prevState: State, formData: FormData): Promis
                     },
                 })
 
+                const validRole = (role === 'SUPPLIER') ? 'SUPPLIER' : 'BUYER'
+
                 await tx.user.create({
                     data: {
                         name,
                         email,
                         password: hashedPassword,
-                        role: role as 'BUYER' | 'SUPPLIER', // Safe cast from Zod Enum
+                        role: validRole,
                         companyRole: 'OWNER',
                         companyId: company.id,
                     },

@@ -91,10 +91,6 @@ export async function createBid(prevState: BidState | undefined, data: any) {
     })
 
     try {
-        const rfq = await prisma.rfq.findUnique({ where: { id: rfqId } })
-        if (!rfq) return { message: 'Solicitud no encontrada.' }
-        if (new Date() > rfq.deadline) return { message: 'La fecha límite de esta solicitud ya expiró.' }
-
         // Check if supplier's company already bid on this RFQ
         const existingBid = await prisma.bid.findFirst({
             where: {
@@ -157,10 +153,13 @@ export async function acceptBid(bidId: string, rfqId: string) {
     try {
         // Verify RFQ belongs to the buyer's company and deadline has passed
         const rfq = await prisma.rfq.findUnique({ where: { id: rfqId } })
-        if (rfq?.companyId !== session.user.companyId) {
+        if (!rfq) {
+            return { success: false, message: 'Solicitud no encontrada.' }
+        }
+        if (rfq.companyId !== session.user.companyId) {
             return { success: false, message: 'Tu empresa no es dueña de esta solicitud.' }
         }
-        if (new Date() < rfq.deadline!) {
+        if (new Date() < rfq.deadline) {
             return { success: false, message: 'No puedes aceptar ofertas antes de la fecha límite.' }
         }
 

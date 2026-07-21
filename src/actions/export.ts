@@ -94,7 +94,7 @@ export async function exportRfqsToCSV(): Promise<{ success: boolean, csv?: strin
             ].join(',')
         })
 
-        const csv = [headers.join(','), ...rows].join('\n')
+        const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n')
 
         return { success: true, csv }
     } catch (error) {
@@ -158,7 +158,7 @@ export async function exportBidsToCSV(rfqId: string): Promise<{ success: boolean
             ].join(',')
         })
 
-        const csv = [headers.join(','), ...rows].join('\n')
+        const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n')
 
         return { success: true, csv }
     } catch (error) {

@@ -77,11 +77,13 @@ export async function createReview(prevState: any, data: any) {
             return { success: false, message: 'No tienes la autoridad para calificar esta licitación.' }
         }
 
+        const actualTargetCompanyId = isBuyer ? acceptedBid.companyId : rfq.companyId
+
         // Save Review
         await prisma.review.create({
             data: {
                 authorCompanyId,
-                targetCompanyId,
+                targetCompanyId: actualTargetCompanyId,
                 rfqId,
                 ratingQuality,
                 ratingPunctuality,
@@ -96,7 +98,7 @@ export async function createReview(prevState: any, data: any) {
             description: `Reseña enviada con promedio ${((ratingQuality + ratingPunctuality + ratingCommunication + ratingProfessionalism) / 4).toFixed(1)}/5`,
             userId: session.user.id,
             companyId: authorCompanyId,
-            metadata: { rfqId, targetCompanyId, avgRating: (ratingQuality + ratingPunctuality + ratingCommunication + ratingProfessionalism) / 4 }
+            metadata: { rfqId, targetCompanyId: actualTargetCompanyId, avgRating: (ratingQuality + ratingPunctuality + ratingCommunication + ratingProfessionalism) / 4 }
         })
 
     } catch (error) {
