@@ -8,6 +8,10 @@ import { revalidatePath } from 'next/cache'
 const CompanyProfileSchema = z.object({
     name: z.string().min(2, { message: 'La Razón Social / Nombre debe tener al menos 2 caracteres.' }),
     nit: z.string().regex(/^[0-9]+(-[0-9A-Z])?$/, { message: 'El NIT debe tener un formato válido (Ej: 123456-7 o 1234567).' }),
+    logo: z.string().optional().nullable(),
+    description: z.string().max(1000, { message: 'La descripción no puede exceder los 1000 caracteres.' }).optional().nullable(),
+    website: z.string().optional().nullable(),
+    phone: z.string().optional().nullable(),
     industry: z.enum([
         'AGRICULTURA', 'CONSTRUCCION', 'ESTADO_GOBIERNO', 'MANUFACTURA',
         'MEDICAL_SALUD', 'RETAIL_COMERCIO', 'SERVICIOS_PROFESIONALES',
@@ -28,6 +32,10 @@ export type SettingsState = {
         nit?: string[]
         industry?: string[]
         department?: string[]
+        logo?: string[]
+        description?: string[]
+        website?: string[]
+        phone?: string[]
     }
     message?: string | null
 }
@@ -47,6 +55,10 @@ export async function updateCompanyProfile(prevState: SettingsState, formData: F
         const data = {
             name: formData.get('name'),
             nit: formData.get('nit'),
+            logo: formData.get('logo') || null,
+            description: formData.get('description') || null,
+            website: formData.get('website') || null,
+            phone: formData.get('phone') || null,
             industry: formData.get('industry'),
             department: formData.get('department'),
         }
@@ -60,7 +72,7 @@ export async function updateCompanyProfile(prevState: SettingsState, formData: F
             }
         }
 
-        const { name, nit, industry, department } = validatedFields.data
+        const { name, nit, logo, description, website, phone, industry, department } = validatedFields.data
 
         // Check if NIT is already used by ANOTHER company
         const existingCompany = await prisma.company.findUnique({ where: { nit } })
@@ -74,11 +86,22 @@ export async function updateCompanyProfile(prevState: SettingsState, formData: F
         // Update Company
         await prisma.company.update({
             where: { id: session.user.companyId },
-            data: { name, nit, industry, department }
+            data: { 
+                name, 
+                nit, 
+                logo: logo || null, 
+                description: description || null, 
+                website: website || null, 
+                phone: phone || null, 
+                industry, 
+                department 
+            }
         })
 
         revalidatePath('/settings')
         revalidatePath('/dashboard')
+        revalidatePath(`/company/${session.user.companyId}`)
+        revalidatePath('/network')
 
         return { message: '¡Perfil de la empresa actualizado exitosamente!' }
     } catch (error) {

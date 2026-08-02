@@ -101,15 +101,19 @@ enum RfqCategory {
 
 // Modelo de Empresa (Comprador o Proveedor) en la plataforma
 model Company {
-  id         String         @id @default(cuid())
-  nit        String         @unique
-  name       String
-  industry   IndustrySector
-  department Location
-  isVerified Boolean        @default(false)
-  kycStatus  String         @default("PENDING") // PENDING, APPROVED, REJECTED
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id          String            @id @default(cuid())
+  nit         String            @unique
+  name        String
+  logo        String?           // Logo URL / Image Base64
+  description String?           @db.Text // Descripción comercial de la empresa
+  website     String?           // Sitio web corporativo
+  phone       String?           // Teléfono de contacto
+  industry    IndustrySector
+  department  Location
+  isVerified  Boolean           @default(false)
+  kycStatus   String            @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   users           User[]
   rfqs            Rfq[]

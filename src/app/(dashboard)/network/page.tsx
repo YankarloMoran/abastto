@@ -158,9 +158,13 @@ export default async function NetworkPage({
                                 className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-6 hover:border-blue-200 dark:hover:border-blue-900/50 hover:shadow-md transition-all"
                             >
                                 <div className="flex items-start gap-4 mb-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform">
-                                        {company.name[0]?.toUpperCase()}
-                                    </div>
+                                    {company.logo ? (
+                                        <img src={company.logo} alt={company.name} className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm shrink-0 group-hover:scale-105 transition-transform" />
+                                    ) : (
+                                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform">
+                                            {company.name[0]?.toUpperCase()}
+                                        </div>
+                                    )}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
                                             <h3 className="font-black text-slate-900 dark:text-white text-sm tracking-tight truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{company.name}</h3>

@@ -4,10 +4,9 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import {
     ArrowLeft, Building2, MapPin, ShieldCheck, Shield, Star,
-    Users, FileText, Calendar, ExternalLink, MessageSquare
+    FileText, Calendar, Globe, Phone, MessageSquare, Lock
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { SupplierMetricsPanel } from "@/components/supplier-metrics-panel"
 
 const INDUSTRY_LABELS: Record<string, string> = {
@@ -29,9 +28,9 @@ const LOCATION_LABELS: Record<string, string> = {
 
 /**
  * Página de Perfil Público de Empresa.
- * Muestra el perfil público de una empresa en la red, calculando métricas
- * en tiempo real como su nivel de confianza (basado en reseñas de 4 dimensiones),
- * transacciones realizadas y estado de verificación KYC.
+ * Muestra la información corporativa pública: Logo, Razón Social, Sector, Ubicación,
+ * Verificación legal, Índice de Confianza y Reseñas recibidas.
+ * GARANTÍA DE PRIVACIDAD: No se expone información financiera privada, ofertas competidoras ni datos confidenciales.
  */
 export default async function CompanyProfilePage({
     params
@@ -49,7 +48,7 @@ export default async function CompanyProfilePage({
             _count: { select: { rfqs: true, bids: true, users: true, receivedReviews: true } },
             receivedReviews: {
                 include: {
-                    authorCompany: { select: { name: true } },
+                    authorCompany: { select: { name: true, logo: true } },
                     rfq: { select: { title: true } }
                 },
                 orderBy: { createdAt: 'desc' },
@@ -72,8 +71,7 @@ export default async function CompanyProfilePage({
         trustScore = Math.round(((ratingBreakdown.quality + ratingBreakdown.punctuality + ratingBreakdown.communication + ratingBreakdown.professionalism) / 4) * 20)
     }
 
-    // Recent completed RFQs (public activity)
-    const isOwnCompany = session.user.companyId === company.id
+    // Recent completed RFQs (public activity title & category only - NO PRIVATE BIDS OR FINANCIAL AMOUNTS)
     const completedRfqs = await prisma.rfq.findMany({
         where: {
             status: { in: ['CLOSED', 'AWARDED'] },
@@ -94,45 +92,74 @@ export default async function CompanyProfilePage({
             <div className="max-w-[900px] mx-auto">
                 {/* Back link */}
                 <Link href="/network" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors group">
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Red de Proveedores
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Red de Empresas
                 </Link>
 
                 {/* Company Header Card */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-8 mb-6">
                     <div className="flex flex-col sm:flex-row items-start gap-6">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-3xl shrink-0 shadow-lg shadow-blue-600/10">
-                            {company.name[0]?.toUpperCase()}
-                        </div>
+                        {company.logo ? (
+                            <img 
+                                src={company.logo} 
+                                alt={company.name} 
+                                className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-800 shadow-md shrink-0" 
+                            />
+                        ) : (
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-3xl shrink-0 shadow-lg shadow-blue-600/10">
+                                {company.name[0]?.toUpperCase()}
+                            </div>
+                        )}
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
+                            <div className="flex flex-wrap items-center gap-3 mb-2">
                                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{company.name}</h1>
-                                {company.isVerified && (
+                                {company.isVerified ? (
                                     <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                                         <ShieldCheck className="w-4 h-4" />
-                                        <span className="text-xs font-black">Verificada</span>
+                                        <span className="text-xs font-black">Empresa Verificada</span>
                                     </div>
-                                )}
-                                {!company.isVerified && (
+                                ) : (
                                     <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-slate-500 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10">
                                         <Shield className="w-4 h-4" />
                                         <span className="text-xs font-bold">Sin verificar</span>
                                     </div>
                                 )}
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-sm">
-                                <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
-                                    <Building2 className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+
+                            <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-400 mb-3">
+                                <span className="flex items-center gap-1.5">
+                                    <Building2 className="w-4 h-4 text-slate-400" />
                                     {INDUSTRY_LABELS[company.industry] || company.industry}
                                 </span>
-                                <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
-                                    <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                                <span className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4 text-slate-400" />
                                     {LOCATION_LABELS[company.department] || company.department}
                                 </span>
-                                <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
-                                    <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                                <span className="flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4 text-slate-400" />
                                     Miembro desde {new Date(company.createdAt).toLocaleDateString('es-GT', { year: 'numeric', month: 'long' })}
                                 </span>
                             </div>
+
+                            {/* Optional Website / Phone */}
+                            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold pt-1">
+                                {company.website && (
+                                    <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline">
+                                        <Globe className="w-3.5 h-3.5" /> {company.website.replace(/^https?:\/\//, '')}
+                                    </a>
+                                )}
+                                {company.phone && (
+                                    <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                                        <Phone className="w-3.5 h-3.5 text-slate-400" /> {company.phone}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Public Description */}
+                            {company.description && (
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed mt-3 pt-3 border-t border-slate-100 dark:border-white/5">
+                                    {company.description}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -148,7 +175,7 @@ export default async function CompanyProfilePage({
                         </div>
                         <div className="text-center">
                             <p className="text-3xl font-black text-slate-900 dark:text-white">{company._count.rfqs + company._count.bids}</p>
-                            <p className="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">Transacciones</p>
+                            <p className="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">Operaciones</p>
                         </div>
                         <div className="text-center">
                             <p className="text-3xl font-black text-slate-900 dark:text-white">{company._count.users}</p>
@@ -172,14 +199,14 @@ export default async function CompanyProfilePage({
                                         { label: 'Profesionalismo', value: ratingBreakdown.professionalism },
                                     ].map(({ label, value }) => (
                                         <div key={label} className="flex items-center gap-4">
-                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400 w-32 shrink-0">{label}</span>
+                                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 w-32 shrink-0">{label}</span>
                                             <div className="flex-1 h-2.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                                                 <div
                                                     className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500"
                                                     style={{ width: `${(value / 5) * 100}%` }}
                                                 />
                                             </div>
-                                            <span className="text-sm font-black text-slate-900 dark:text-white w-8 text-right">{value.toFixed(1)}</span>
+                                            <span className="text-xs font-black text-slate-900 dark:text-white w-8 text-right">{value.toFixed(1)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -197,32 +224,33 @@ export default async function CompanyProfilePage({
                                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Esta empresa aún no ha recibido reseñas.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-5">
+                                <div className="space-y-4">
                                     {reviews.map(review => {
                                         const avg = (review.ratingQuality + review.ratingPunctuality + review.ratingCommunication + review.ratingProfessionalism) / 4
                                         return (
                                             <div key={review.id} className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xs">
-                                                            {review.authorCompany.name[0]?.toUpperCase()}
-                                                        </div>
+                                                    <div className="flex items-center gap-2.5">
+                                                        {review.authorCompany.logo ? (
+                                                            <img src={review.authorCompany.logo} alt={review.authorCompany.name} className="w-8 h-8 rounded-lg object-cover border" />
+                                                        ) : (
+                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xs">
+                                                                {review.authorCompany.name[0]?.toUpperCase()}
+                                                            </div>
+                                                        )}
                                                         <div>
-                                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{review.authorCompany.name}</p>
-                                                            <p className="text-[0.6rem] text-slate-400 dark:text-slate-500 font-medium">{review.rfq.title}</p>
+                                                            <p className="text-xs font-bold text-slate-900 dark:text-white">{review.authorCompany.name}</p>
+                                                            <p className="text-[0.6rem] text-slate-400 font-medium">{review.rfq.title}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                                                        <span className="text-sm font-black text-slate-900 dark:text-white">{avg.toFixed(1)}</span>
+                                                        <span className="text-xs font-black text-slate-900 dark:text-white">{avg.toFixed(1)}</span>
                                                     </div>
                                                 </div>
                                                 {review.comment && (
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mt-2 leading-relaxed">{review.comment}</p>
+                                                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2 leading-relaxed">{review.comment}</p>
                                                 )}
-                                                <p className="text-[0.6rem] text-slate-400 dark:text-slate-500 font-bold mt-2">
-                                                    {new Date(review.createdAt).toLocaleDateString('es-GT', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                                </p>
                                             </div>
                                         )
                                     })}
@@ -233,19 +261,19 @@ export default async function CompanyProfilePage({
 
                     {/* Right sidebar */}
                     <div className="space-y-6">
-                        {/* Quick Info */}
+                        {/* Public Activity */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-6">
-                            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Actividad Reciente</h3>
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Actividad Reciente</h3>
                             {completedRfqs.length === 0 ? (
-                                <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Sin actividad pública reciente.</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Sin actividad pública reciente.</p>
                             ) : (
                                 <div className="space-y-3">
                                     {completedRfqs.map(rfq => (
-                                        <Link key={rfq.id} href={`/rfq/${rfq.id}`} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
-                                            <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
+                                        <Link key={rfq.id} href={`/rfq/${rfq.id}`} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                            <FileText className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
                                             <div className="min-w-0">
                                                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{rfq.title}</p>
-                                                <p className="text-[0.6rem] text-slate-400 dark:text-slate-500 font-medium">
+                                                <p className="text-[0.65rem] text-slate-400 font-medium">
                                                     {new Date(rfq.createdAt).toLocaleDateString('es-GT', { month: 'short', year: 'numeric' })}
                                                 </p>
                                             </div>
@@ -255,25 +283,27 @@ export default async function CompanyProfilePage({
                             )}
                         </div>
 
-                        {/* NIT Info */}
+                        {/* Fiscal Info & Privacy Badge */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 p-6">
-                            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-3 uppercase tracking-wider">Información Fiscal</h3>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
+                            <h3 className="text-xs font-black text-slate-900 dark:text-white mb-3 uppercase tracking-wider">Información Fiscal & Privacidad</h3>
+                            <div className="space-y-2.5">
+                                <div className="flex justify-between text-xs">
                                     <span className="text-slate-500 dark:text-slate-400 font-medium">NIT</span>
                                     <span className="font-bold text-slate-900 dark:text-white">{company.nit}</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Verificación</span>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Estado Legal</span>
                                     <Badge variant="outline" className={`text-[0.6rem] font-bold px-2 ${
-                                        company.kycStatus === 'APPROVED'
-                                            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                                            : company.kycStatus === 'PENDING'
-                                            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-                                            : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800'
+                                        company.kycStatus === 'APPROVED' || company.isVerified
+                                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                                     }`}>
-                                        {company.kycStatus === 'APPROVED' ? 'Aprobado' : company.kycStatus === 'PENDING' ? 'Pendiente' : 'Rechazado'}
+                                        {company.isVerified ? 'Verificado' : 'En proceso'}
                                     </Badge>
+                                </div>
+                                <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-[0.65rem] font-semibold text-slate-400">
+                                    <Lock className="w-3 h-3 text-blue-500 shrink-0" />
+                                    <span>Datos financieros y ofertas protegidos bajo confidencialidad.</span>
                                 </div>
                             </div>
                         </div>
