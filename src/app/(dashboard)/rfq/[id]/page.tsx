@@ -451,7 +451,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
                                     </div>
                                 ) : (
                                     <div className="bg-white dark:bg-slate-900 p-8 rounded-[16px] shadow-sm dark:shadow-2xl border border-slate-200 dark:border-white/10 transition-colors">
-                                        <BidForm rfqId={rfq.id} rfqItems={rfq.items} />
+                                        <BidForm rfqId={rfq.id} rfqItems={rfq.items} rfqTitle={rfq.title} rfqDescription={rfq.description} />
                                     </div>
                                 )}
 

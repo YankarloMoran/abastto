@@ -5,11 +5,12 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createBid } from '@/actions/bid'
+import { generateSupplierBidProposal } from '@/actions/ai'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { AlertCircle, Send, Package, CheckCircle, DollarSign, Clock, FileText, Loader2 } from 'lucide-react'
+import { AlertCircle, Send, CheckCircle, DollarSign, Clock, FileText, Loader2, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 
 const BidItemSchema = z.object({
@@ -21,15 +22,16 @@ const BidItemSchema = z.object({
 const BidFormSchema = z.object({
     rfqId: z.string(),
     validityDays: z.coerce.number().positive({ message: 'Indica los días de validez.' }),
-    deliveryLeadTime: z.string().min(2, { message: 'Especifica el tiempo de entrega (ej. 5 días).' }),
+    deliveryLeadTime: z.string().min(2, { message: 'Especifica el tiempo de entrega (ej. 5 días hábiles).' }),
     proposal: z.string().min(10, { message: 'La propuesta debe tener al menos 10 caracteres.' }),
     items: z.array(BidItemSchema)
 })
 
 type BidFormValues = z.infer<typeof BidFormSchema>
 
-export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: any[] }) {
+export default function BidForm({ rfqId, rfqItems, rfqTitle = '', rfqDescription = '' }: { rfqId: string, rfqItems: any[], rfqTitle?: string, rfqDescription?: string }) {
     const [isPending, setIsPending] = useState(false)
+    const [isAiGenerating, setIsAiGenerating] = useState(false)
     const [serverMessage, setServerMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null)
 
     const form = useForm<BidFormValues>({
@@ -53,6 +55,24 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
         const qty = rfqItems[index]?.quantity || 0
         return acc + (curr.unitPrice * qty)
     }, 0)
+
+    async function handleGenerateAiProposal() {
+        setIsAiGenerating(true)
+        try {
+            const currentText = form.getValues('proposal')
+            const res = await generateSupplierBidProposal(rfqTitle, rfqDescription, currentText)
+            if (res.success && res.proposal) {
+                form.setValue('proposal', res.proposal)
+                toast.success('¡Propuesta redactada por Nexus IA!')
+            } else {
+                toast.error(res.message || 'No se pudo generar la propuesta.')
+            }
+        } catch (err) {
+            toast.error('Error al generar la propuesta con IA.')
+        } finally {
+            setIsAiGenerating(false)
+        }
+    }
 
     async function onSubmit(data: BidFormValues) {
         setIsPending(true)
@@ -105,14 +125,14 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
             
             {/* Header */}
             <div className="p-6 md:p-8 border-b border-slate-100 dark:border-white/5">
-                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5 font-outfit">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                         <FileText className="w-5 h-5" />
                     </div>
                     Armar Cotización
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 ml-[46px]">
-                    Ingresa tus precios unitarios y condiciones para esta solicitud.
+                    Ingresa tus precios unitarios y tu tiempo de entrega propuesto para esta solicitud.
                 </p>
             </div>
 
@@ -130,8 +150,7 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
                             const unitPrice = watchItems[index]?.unitPrice || 0
                             const subtotal = unitPrice * (rfqItem?.quantity || 0)
                             return (
-                                <div key={field.id} className="group bg-slate-50/80 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-3 hover:border-blue-200 dark:hover:border-blue-900/30 transition-all">
-                                    {/* Item header */}
+                                <div key={field.id} className="group bg-slate-50/80 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-3">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-black text-slate-900 dark:text-white text-sm">{rfqItem.name}</p>
@@ -139,7 +158,7 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
                                         </div>
                                         {unitPrice > 0 && (
                                             <div className="text-right">
-                                                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">Subtotal</p>
+                                                <p className="text-[0.65rem] text-slate-400 font-bold uppercase">Subtotal</p>
                                                 <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">Q {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                             </div>
                                         )}
@@ -151,19 +170,19 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
                                             <Input 
                                                 type="number" 
                                                 step="0.01" 
-                                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10"
+                                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10 font-medium text-xs"
                                                 {...form.register(`items.${index}.unitPrice` as const)} 
                                             />
                                             {form.formState.errors.items?.[index]?.unitPrice && (
-                                                <p className="text-xs text-red-500 font-medium">{form.formState.errors.items[index].unitPrice.message}</p>
+                                                <p className="text-xs text-red-500 font-bold">{form.formState.errors.items[index].unitPrice.message}</p>
                                             )}
                                         </div>
 
                                         <div className="space-y-1.5">
                                             <Label className="text-xs font-bold text-slate-500 dark:text-slate-400">Aclaraciones (Opcional)</Label>
                                             <Input 
-                                                placeholder="Ej. Incluye estuche, garantía 1 año..." 
-                                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10"
+                                                placeholder="Ej. Incluye garantía 1 año, entrega a domicilio..." 
+                                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10 font-medium text-xs"
                                                 {...form.register(`items.${index}.remarks` as const)} 
                                             />
                                         </div>
@@ -174,69 +193,91 @@ export default function BidForm({ rfqId, rfqItems }: { rfqId: string, rfqItems: 
                     </div>
 
                     {/* Total */}
-                    <div className="flex justify-between items-center p-5 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/10 dark:to-blue-900/10 rounded-2xl border border-emerald-200/50 dark:border-emerald-800/30">
-                        <span className="font-black text-emerald-900 dark:text-emerald-100 uppercase text-sm tracking-wider">Total Ofertado</span>
-                        <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
+                    <div className="flex justify-between items-center p-5 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/20 dark:to-blue-950/20 rounded-2xl border border-emerald-200/50 dark:border-emerald-900/30">
+                        <span className="font-black text-emerald-900 dark:text-emerald-100 uppercase text-xs tracking-wider">Total Ofertado</span>
+                        <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
                             Q {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                     </div>
                 </div>
 
-                {/* SECTION 2: Terms */}
+                {/* SECTION 2: Terms & Lead Time */}
                 <div className="space-y-4">
                     <h3 className="text-[0.7rem] font-black text-slate-900 dark:text-white uppercase tracking-[0.15em] flex items-center gap-2">
                         <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        Condiciones de Entrega
+                        Condiciones de Entrega (Propuestas por tu Empresa)
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <Label htmlFor="deliveryLeadTime" className="text-sm font-bold text-slate-700 dark:text-slate-300">Plazo de Entrega <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="deliveryLeadTime" className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Plazo de Entrega Propuesto <span className="text-red-500">*</span>
+                            </Label>
                             <Input 
                                 id="deliveryLeadTime" 
-                                placeholder="Ej: 5 a 7 días hábiles" 
-                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10"
+                                placeholder="Ej: 3 días hábiles o 15 días calendario" 
+                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10 font-medium text-xs"
                                 {...form.register('deliveryLeadTime')} 
                             />
-                            {form.formState.errors.deliveryLeadTime && <p className="text-sm text-red-500 font-medium">{form.formState.errors.deliveryLeadTime.message}</p>}
+                            {form.formState.errors.deliveryLeadTime && <p className="text-xs text-red-500 font-bold">{form.formState.errors.deliveryLeadTime.message}</p>}
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="validityDays" className="text-sm font-bold text-slate-700 dark:text-slate-300">Validez de la Oferta (días) <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="validityDays" className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Validez de la Oferta (días) <span className="text-red-500">*</span>
+                            </Label>
                             <Input 
                                 id="validityDays" 
                                 type="number" 
-                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10"
+                                className="h-11 rounded-xl dark:bg-slate-950 dark:border-white/10 font-medium text-xs"
                                 {...form.register('validityDays')} 
                             />
-                            {form.formState.errors.validityDays && <p className="text-sm text-red-500 font-medium">{form.formState.errors.validityDays.message}</p>}
+                            {form.formState.errors.validityDays && <p className="text-xs text-red-500 font-bold">{form.formState.errors.validityDays.message}</p>}
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="proposal" className="text-sm font-bold text-slate-700 dark:text-slate-300">Términos Generales y Carta de Presentación <span className="text-red-500">*</span></Label>
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="proposal" className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Términos Generales y Carta de Presentación <span className="text-red-500">*</span>
+                            </Label>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleGenerateAiProposal}
+                                disabled={isAiGenerating}
+                                className="text-[11px] font-bold h-8 rounded-lg border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 cursor-pointer"
+                            >
+                                {isAiGenerating ? (
+                                    <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Redactando...</>
+                                ) : (
+                                    <><Sparkles className="w-3 h-3 mr-1 text-blue-600" /> Redactar con Nexus IA</>
+                                )}
+                            </Button>
+                        </div>
                         <Textarea
                             id="proposal"
-                            placeholder="Garantías, métodos de envío, detalles técnicos adicionales, condiciones especiales..."
-                            className="min-h-[140px] rounded-xl dark:bg-slate-950 dark:border-white/10 resize-none"
+                            placeholder="Garantías, métodos de envío, especificaciones adicionales..."
+                            className="min-h-[140px] rounded-xl dark:bg-slate-950 dark:border-white/10 font-medium text-xs resize-none"
                             {...form.register('proposal')}
                         />
-                        {form.formState.errors.proposal && <p className="text-sm text-red-500 font-medium">{form.formState.errors.proposal.message}</p>}
+                        {form.formState.errors.proposal && <p className="text-xs text-red-500 font-bold">{form.formState.errors.proposal.message}</p>}
                     </div>
                 </div>
 
                 {/* Error display */}
                 {serverMessage && serverMessage.type === 'error' && (
-                    <div className="flex items-center gap-2 p-4 text-sm rounded-xl text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30">
+                    <div className="flex items-center gap-2 p-4 text-xs rounded-xl text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 font-bold">
                         <AlertCircle className="h-4 w-4 shrink-0" />
-                        <p className="font-medium">{serverMessage.text}</p>
+                        <p>{serverMessage.text}</p>
                     </div>
                 )}
 
                 {/* Submit */}
                 <Button 
                     type="submit" 
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-[0.99]" 
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all cursor-pointer text-xs" 
                     disabled={isPending}
                 >
                     {isPending ? (

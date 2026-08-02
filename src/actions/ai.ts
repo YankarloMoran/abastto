@@ -7,10 +7,107 @@ import { generateText } from 'ai'
 
 /**
  * Server Actions para Inteligencia Artificial en Abastto.
- * Implementa el análisis estructurado de ofertas (`analyzeOffers`) y la generación
- * de reportes de ahorro (`generateSpendAnalytics`) utilizando el modelo 
- * Gemini 2.5 Flash a través del SDK de Vercel AI.
+ * Implementa el análisis estructurado de ofertas (`analyzeOffers`),
+ * autocompletado inteligente de licitaciones (`autoStructureRfq`),
+ * asistencia de propuestas para proveedores (`generateSupplierBidProposal`),
+ * y la generación de reportes de ahorro (`generateSpendAnalytics`).
  */
+export async function autoStructureRfq(userPrompt: string) {
+    try {
+        const session = await auth()
+        if (!session?.user) {
+            return { success: false, message: 'Debes iniciar sesión.' }
+        }
+
+        if (!userPrompt || userPrompt.trim().length < 10) {
+            return { success: false, message: 'Ingresa un requerimiento o texto con más detalles.' }
+        }
+
+        const prompt = `
+Eres Nexus IA, un experto en abastecimiento comercial y estructuración de licitaciones en Guatemala.
+Un comprador te ha enviado una descripción informal o lista de lo que necesita cotizar:
+"${userPrompt}"
+
+Tu tarea es analizar el requerimiento y extraer la información en un objeto JSON estructurado listo para publicar la licitación.
+
+Reglas obligatorias:
+1. El presupuesto ('budget') debe ser un número entero o decimal estimado en Quetzales. Si no se especifica, calcula una estimación razonable mayor a 0 basada en el mercado de Guatemala.
+2. La categoría ('category') debe ser estrictamente una de las siguientes opciones: 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'.
+3. Las partidas ('items') deben ser un array de objetos con las claves:
+   - "name": Nombre del producto o servicio.
+   - "quantity": Número entero positivo (mayor a 0).
+   - "unit": Unidad de medida (ej. "Piezas", "Cajas", "Horas", "Lotes", "Metros").
+4. REGLA CLAVE: NO INCLUYAS NINGÚN TIEMPO NI PLAZO DE ENTREGA. Los proveedores son los encargados de proponer su tiempo de entrega en sus cotizaciones.
+
+Responde ÚNICAMENTE con un JSON estricto sin bloques de markdown (\`\`\`json), sin saludos, sin explicaciones:
+{
+  "title": "Título corporativo claro y conciso",
+  "description": "Descripción técnica detallada especificando la necesidad del negocio y normas de entrega requeridas.",
+  "budget": 5000,
+  "category": "TECH",
+  "items": [
+    { "name": "Laptop Intel Core i7", "quantity": 5, "unit": "Piezas" }
+  ]
+}
+`
+
+        const result = await generateText({
+            model: google('gemini-2.5-flash'),
+            prompt,
+        })
+
+        let cleanJson = result.text.trim()
+        if (cleanJson.startsWith('```json')) {
+            cleanJson = cleanJson.replace(/^```json\n/, '').replace(/\n```$/, '')
+        }
+        if (cleanJson.startsWith('```')) {
+            cleanJson = cleanJson.replace(/^```\n/, '').replace(/\n```$/, '')
+        }
+
+        const parsed = JSON.parse(cleanJson)
+
+        return {
+            success: true,
+            data: parsed
+        }
+    } catch (error) {
+        console.error("AutoStructureRfq Error:", error)
+        return { success: false, message: 'Error procesando el requerimiento con IA.' }
+    }
+}
+
+export async function generateSupplierBidProposal(rfqTitle: string, rfqDescription: string, userNotes?: string) {
+    try {
+        const session = await auth()
+        if (!session?.user) {
+            return { success: false, message: 'Debes iniciar sesión.' }
+        }
+
+        const prompt = `
+Eres un consultor comercial experto. Ayuda a un proveedor a redactar una carta de presentación y propuesta formal para una licitación.
+
+Licitación: "${rfqTitle}"
+Descripción de la licitación: "${rfqDescription}"
+${userNotes ? `Notas adicionales del proveedor: "${userNotes}"` : ''}
+
+Escribe una propuesta formal, persuasiva y profesional en 2 párrafos cortos resaltando la garantía, compromiso de cumplimiento e invitando al comprador a evaluar la oferta. No incluyas marcadores de posición tipo [Nombre].
+`
+
+        const result = await generateText({
+            model: google('gemini-2.5-flash'),
+            prompt,
+        })
+
+        return {
+            success: true,
+            proposal: result.text.trim()
+        }
+    } catch (error) {
+        console.error("GenerateSupplierBidProposal Error:", error)
+        return { success: false, message: 'Error redactando la propuesta con IA.' }
+    }
+}
+
 export async function analyzeOffers(rfqId: string) {
     try {
         const session = await auth()
@@ -50,7 +147,7 @@ export async function analyzeOffers(rfqId: string) {
 * Proveedor: ${bid.company?.name || 'Empresa Anónima'}
 * Precio Total Ofertado: Q ${Number(bid.amount).toFixed(2)}
 * Días de Validez de Oferta: ${bid.validityDays || 'No especificado'}
-* Tiempo de Entrega Prometido: ${bid.deliveryLeadTime || 'No especificado'}
+* Tiempo de Entrega Prometido por el Proveedor: ${bid.deliveryLeadTime || 'No especificado'}
 * Carta/Desglose General: ${bid.coverLetter}
 * Cotización por Ítem:
 ${itemsText}
@@ -58,9 +155,9 @@ ${itemsText}
         }).join('\n')
 
         const prompt = `
-Eres un analista de compras experto B2B (Business-to-Business) en Guatemala.
+Eres un analista de compras experto en Guatemala.
 Han publicado una Solicitud de Cotización (RFQ) multi-producto y han llegado múltiples ofertas.
-Tu trabajo es analizar las ofertas, compararlas de manera objetiva y recomendar la mejor opción basándote en un balance entre precio unitario total, condiciones establecidas, y tiempo de entrega.
+Tu trabajo es analizar las ofertas, compararlas de manera objetiva y recomendar la mejor opción basándote en un balance entre precio unitario total, condiciones establecidas, y tiempo de entrega prometido por cada proveedor.
 
 ### Detalles de la Solicitud (Lo que el comprador necesita):
 * Título: ${rfq.title}
@@ -82,7 +179,7 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
 {
   "best_bid_id": "ID de la oferta (Bid ID) ganadora recomendada. Usa estrictamente el 'Bid ID' proporcionado.",
   "best_bid_name": "Nombre corporativo del proveedor recomendado.",
-  "overall_verdict": "Resumen ejecutivo argumentando tu decisión final, max 2 párrafos.",
+  "overall_verdict": "Resumen ejecutivo argumentando tu decisión final evaluando precio y tiempo de entrega, max 2 párrafos.",
   "red_flags": ["Cualquier riesgo o alerta roja que notes en las ofertas. Si no hay nada, array vacío."],
   "evaluations": [
     {
@@ -98,13 +195,11 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
 }
 `
 
-        // 3. Call Gemini via AI SDK (unified approach)
         const result = await generateText({
             model: google('gemini-2.5-flash'),
             prompt,
         })
 
-        // 4. Clean up string just in case
         let cleanJson = result.text.trim()
         if (cleanJson.startsWith('```json')) {
             cleanJson = cleanJson.replace(/^```json\n/, '').replace(/\n```$/, '')
@@ -113,7 +208,6 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
             cleanJson = cleanJson.replace(/^```\n/, '').replace(/\n```$/, '')
         }
 
-        // 5. Save the analysis to the DB
         await prisma.rfq.update({
             where: { id: rfqId },
             data: { aiAnalysis: cleanJson }
@@ -180,7 +274,7 @@ export async function generateSpendAnalytics() {
         const savingsPercentage = totalBudget > 0 ? (savings / totalBudget) * 100 : 0;
 
         const prompt = `
-Eres un Analista Financiero B2B y Director de Compras (CPO).
+Eres un Analista Financiero y Director de Compras.
 Tu objetivo es generar a partir del historial de compras de la empresa, un informe ejecutivo rápido resaltando el ahorro generado.
 
 Datos Históricos Recientes (Licitaciones Cerradas):
@@ -192,11 +286,7 @@ Resumen Matemático:
 * Ahorro Logrado: Q${savings.toFixed(2)} (${savingsPercentage.toFixed(2)}%)
 
 Instrucciones:
-Escribe un reporte ejecutivo de 2 a 3 párrafos.
-1. Haz un resumen resaltando el porcentaje de ahorro y su impacto financiero positivo.
-2. Identifica fortalezas en la estrategia de negociación actual.
-3. Menciona brevemente alguna recomendación futura basada en estos datos.
-Usa markdown (negritas, bullet points) para facilitar la lectura. No uses HTML. Usa un tono ejecutivo, enfocado a resultados contables y motivacional.
+Escribe un reporte ejecutivo de 2 a 3 párrafos resaltando el ahorro financiero logrado y recomendaciones futuras.
 `
         const result = await generateText({
             model: google('gemini-2.5-flash'),
