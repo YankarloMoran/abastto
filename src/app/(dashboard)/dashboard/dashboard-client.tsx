@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
     Activity, DollarSign, CheckCircle2, Star, Clock,
-    Inbox, Plus, Bell
+    Inbox, Plus, Bell, ArrowRight
 } from 'lucide-react'
 import { STATUS_LABELS } from "@/lib/constants"
 import { DashboardCharts } from "@/components/dashboard-charts"
@@ -29,13 +29,13 @@ const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
         opacity: 1,
-        transition: { staggerChildren: 0.1 }
+        transition: { staggerChildren: 0.08 }
     }
 }
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
 }
 
 export function DashboardClient({
@@ -44,32 +44,32 @@ export function DashboardClient({
 }: DashboardClientProps) {
     return (
         <motion.div 
-            className="flex-1 p-6 md:p-10 xl:p-14 max-w-[1600px] w-full mx-auto space-y-10"
+            className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1600px] w-full mx-auto space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="show"
         >
-            {/* Editorial Header */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-2">
-                <div className="space-y-2">
-                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white leading-none font-outfit">
+            {/* Header */}
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-1">
+                <div className="space-y-1">
+                    <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-none font-outfit">
                         Resumen Operativo
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-base font-medium leading-relaxed max-w-2xl">
-                        Gestiona tus indicadores estratégicos y visualiza el estado de tus procesos en tiempo real.
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                        Indicadores clave y actividad en tiempo real de su organización.
                     </p>
                 </div>
                 {isBuyer && (
                     <Link href="/rfq/create">
-                        <Button className="cursor-pointer bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-xl shadow-blue-600/20 border-0 h-11 px-7 rounded-xl font-bold text-sm tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]">
-                            <Plus className="w-[18px] h-[18px] mr-2" /> Nueva Licitación
+                        <Button className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20 border-0 h-10 px-5 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer">
+                            <Plus className="w-4 h-4 mr-2" /> Nueva Licitación
                         </Button>
                     </Link>
                 )}
             </motion.div>
 
             {/* Metrics Grid */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard
                     title={isBuyer ? "Total Adjudicado" : "Pipeline Ganado"}
                     value={`Q ${totalValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`}
@@ -88,92 +88,89 @@ export function DashboardClient({
                     icon={CheckCircle2}
                     color="emerald"
                 />
-                <div className="bg-white/80 dark:bg-[#0a0f1c]/50 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-slate-200/50 dark:border-white/10 flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="flex justify-between items-start mb-5 relative z-10">
-                        <h3 className="text-[0.7rem] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">Índice de Confianza</h3>
-                        <div className="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl shadow-inner"><Star className="w-5 h-5" /></div>
+                <div className="bg-white dark:bg-[#0b0f19] rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:shadow-md transition-all duration-200">
+                    <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Calificación Comercial</h3>
+                        <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+                            <Star className="w-4 h-4" />
+                        </div>
                     </div>
-                    <div className="flex-1 max-w-full overflow-hidden flex items-end relative z-10">
+                    <div className="flex-1 max-w-full overflow-hidden flex items-end">
                         {trustScoreBadge}
                     </div>
                 </div>
             </motion.div>
 
             {/* Main Grid */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 leading-relaxed">
-                {/* Table */}
-                <div className="bg-white/80 dark:bg-[#0a0f1c]/50 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 dark:border-white/10 overflow-hidden flex flex-col transition-all relative">
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
-                    <div className="px-7 py-5 flex justify-between items-center bg-slate-50/50 dark:bg-white/5 border-b border-slate-200/50 dark:border-white/10 relative z-10">
-                        <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight font-outfit">{isBuyer ? 'Licitaciones Recientes' : 'Mercado: Oportunidades'}</h2>
+            <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
+                {/* Table Card */}
+                <div className="bg-white dark:bg-[#0b0f19] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col transition-all">
+                    <div className="px-5 py-4 flex justify-between items-center bg-slate-50/70 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+                        <h2 className="text-base font-bold text-slate-900 dark:text-white font-outfit">
+                            {isBuyer ? 'Licitaciones Recientes' : 'Oportunidades Disponibles'}
+                        </h2>
                         <Link href="/rfq">
-                            <Button variant="ghost" className="cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-bold h-9 px-4 rounded-xl transition-all">
-                                Ver todo
+                            <Button variant="ghost" className="cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs font-bold h-8 px-3 rounded-lg transition-all">
+                                Ver todo <ArrowRight className="w-3.5 h-3.5 ml-1" />
                             </Button>
                         </Link>
                     </div>
 
                     {tableData.length === 0 ? (
-                        <div className="p-16 text-center flex flex-col items-center justify-center relative z-10">
-                            <div className="w-20 h-20 bg-white dark:bg-white/5 shadow-xl border border-slate-200 dark:border-white/10 rounded-3xl flex items-center justify-center mb-5 backdrop-blur-md">
-                                <Inbox className="w-10 h-10 text-slate-300 dark:text-slate-500" />
+                        <div className="p-12 text-center flex flex-col items-center justify-center">
+                            <div className="w-14 h-14 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-center mb-4">
+                                <Inbox className="w-7 h-7 text-slate-400 dark:text-slate-500" />
                             </div>
-                            <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white font-outfit">Sin actividad</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm font-medium leading-relaxed">
-                                {isBuyer ? 'Inicia un nuevo proceso para cotizar.' : 'Revisa más tarde para nuevas oportunidades.'}
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white font-outfit">Sin actividad reciente</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs font-medium">
+                                {isBuyer ? 'Cree un requerimiento para recibir propuestas.' : 'No hay oportunidades abiertas actualmente.'}
                             </p>
                         </div>
                     ) : (
-                        <div className="w-full overflow-x-auto custom-scrollbar relative z-10">
-                            <table className="w-full text-left border-collapse">
+                        <div className="w-full overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[620px]">
                                 <thead>
-                                    <tr className="bg-slate-50/50 dark:bg-white/5 text-[0.7rem] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">
-                                        <th className="px-7 py-4 border-b border-slate-200/50 dark:border-white/10">Referencia</th>
-                                        <th className="px-7 py-4 border-b border-slate-200/50 dark:border-white/10">Fecha Límite</th>
-                                        <th className="px-7 py-4 border-b border-slate-200/50 dark:border-white/10">Estado</th>
-                                        <th className="px-7 py-4 border-b border-slate-200/50 dark:border-white/10 text-right">{isBuyer ? 'Ofertas' : ''}</th>
-                                        <th className="px-7 py-4 border-b border-slate-200/50 dark:border-white/10"></th>
+                                    <tr className="bg-slate-50/50 dark:bg-slate-900/20 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                                        <th className="px-5 py-3.5">Referencia</th>
+                                        <th className="px-5 py-3.5">Fecha Límite</th>
+                                        <th className="px-5 py-3.5">Estado</th>
+                                        <th className="px-5 py-3.5 text-right">{isBuyer ? 'Ofertas' : 'Detalles'}</th>
+                                        <th className="px-4 py-3.5 w-10"></th>
                                     </tr>
                                 </thead>
-                                <tbody className="text-sm divide-y divide-slate-100/50 dark:divide-white/5">
+                                <tbody className="text-xs divide-y divide-slate-100 dark:divide-slate-800/60">
                                     {tableData.map((row) => {
                                         const isPastDeadline = row.deadline && new Date() > new Date(row.deadline)
                                         const effectiveStatus = row.status === 'OPEN' && isPastDeadline ? 'EVALUATING' : row.status
                                         const statusInfo = STATUS_LABELS[effectiveStatus] || { label: effectiveStatus, class: '' }
                                         return (
-                                            <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-all group cursor-pointer">
-                                                <td className="px-7 py-5">
-                                                    <p className="font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-sm">{row.title}</p>
-                                                    {!isBuyer && <p className="text-[0.7rem] font-bold text-slate-500 dark:text-slate-400 mt-1">{row.companyName}</p>}
+                                            <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors group cursor-pointer">
+                                                <td className="px-5 py-3.5">
+                                                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-xs max-w-[180px] sm:max-w-[240px] xl:max-w-[280px] truncate">
+                                                        {row.title}
+                                                    </p>
+                                                    {!isBuyer && <p className="text-[0.65rem] font-medium text-slate-400 mt-0.5 truncate max-w-[180px]">{row.companyName}</p>}
                                                 </td>
-                                                <td className="px-7 py-5 whitespace-nowrap">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`p-2 rounded-xl shadow-inner ${isPastDeadline ? 'bg-red-100 dark:bg-red-500/10 text-red-600' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300'}`}>
-                                                            <Clock className="w-4 h-4" />
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className={`font-bold text-sm ${isPastDeadline ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'}`}>
-                                                                {new Date(row.deadline).toLocaleDateString('es-GT', { month: 'short', day: 'numeric' })}
-                                                            </span>
-                                                            <span className="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500">
-                                                                {new Date(row.deadline).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                        </div>
+                                                <td className="px-5 py-3.5 whitespace-nowrap">
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock className={`w-3.5 h-3.5 ${isPastDeadline ? 'text-rose-500' : 'text-slate-400'}`} />
+                                                        <span className={`font-semibold ${isPastDeadline ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                            {new Date(row.deadline).toLocaleDateString('es-GT', { month: 'short', day: 'numeric' })}
+                                                        </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-7 py-5 whitespace-nowrap">
-                                                    <Badge variant="outline" className={`px-3 py-1 font-black text-[0.65rem] shadow-sm backdrop-blur-sm ${statusInfo.class}`}>
+                                                <td className="px-5 py-3.5 whitespace-nowrap">
+                                                    <Badge variant="outline" className={`px-2.5 py-0.5 font-bold text-[0.65rem] ${statusInfo.class}`}>
                                                         {statusInfo.label}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-7 py-5 text-right font-black text-slate-900 dark:text-white whitespace-nowrap tabular-nums text-sm">
+                                                <td className="px-5 py-3.5 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap tabular-nums">
                                                     {row.metric}
                                                 </td>
-                                                <td className="px-7 py-5 text-right whitespace-nowrap">
+                                                <td className="px-4 py-3.5 text-right whitespace-nowrap">
                                                     <Link href={row.link}>
-                                                        <Button variant="ghost" size="sm" className="cursor-pointer h-8 px-3 font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-xs">
-                                                            Ver detalles
+                                                        <Button variant="ghost" size="sm" className="cursor-pointer h-7 px-2.5 font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg text-[0.7rem]">
+                                                            Ver
                                                         </Button>
                                                     </Link>
                                                 </td>
@@ -188,34 +185,28 @@ export function DashboardClient({
 
                 {/* Right column */}
                 <div className="flex flex-col gap-6">
-                    {/* Real Charts */}
-                    <div className="bg-white/80 dark:bg-[#0a0f1c]/50 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 dark:border-white/10 p-1 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
-                        <div className="relative z-10">
-                            <DashboardCharts
-                                rfqsByStatus={rfqsByStatus}
-                                monthlyData={monthlyData}
-                                isBuyer={isBuyer}
-                            />
-                        </div>
+                    {/* Charts */}
+                    <div className="bg-white dark:bg-[#0b0f19] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
+                        <DashboardCharts
+                            rfqsByStatus={rfqsByStatus}
+                            monthlyData={monthlyData}
+                            isBuyer={isBuyer}
+                        />
                     </div>
 
-                    {/* Alerts */}
-                    <div className="bg-white/80 dark:bg-[#0a0f1c]/50 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 dark:border-white/10 p-7 flex flex-col relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
-                        
-                        <h2 className="text-sm font-black text-slate-900 dark:text-white mb-5 flex items-center gap-2 uppercase tracking-widest relative z-10 font-outfit">
-                            <Bell className="w-4 h-4 text-blue-500" /> Tareas Hoy
+                    {/* Alerts Card */}
+                    <div className="bg-white dark:bg-[#0b0f19] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+                        <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wider font-outfit">
+                            <Bell className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Alertas Operativas
                         </h2>
-                        <div className="space-y-3 relative z-10">
+                        <div className="space-y-2.5">
                             {alerts.length > 0 ? (
                                 alerts.map((alert, i) => (
                                     <AlertItem key={i} title={alert.text} time={alert.time} type={alert.type} />
                                 ))
                             ) : (
-                                <div className="text-center p-6 bg-slate-50/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 rounded-2xl backdrop-blur-sm">
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">No tienes tareas pendientes.</p>
+                                <div className="text-center p-4 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200/60 dark:border-slate-800 rounded-xl">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">No tiene tareas pendientes actualmente.</p>
                                 </div>
                             )}
                         </div>
@@ -228,20 +219,19 @@ export function DashboardClient({
 
 function MetricCard({ title, value, icon: Icon, color = "blue" }: { title: string, value: string, icon: any, color?: string }) {
     const colorVariants: any = {
-        blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10",
-        emerald: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10",
-        indigo: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10",
+        blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/40",
+        emerald: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40",
+        indigo: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/40",
     }
     return (
-        <div className="bg-white/80 dark:bg-[#0a0f1c]/50 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-slate-200/50 dark:border-white/10 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="flex justify-between items-start mb-5 relative z-10">
-                <p className="text-[0.7rem] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">{title}</p>
-                <div className={`p-3 rounded-2xl shadow-inner backdrop-blur-md ${colorVariants[color] || colorVariants.blue}`}>
-                    <Icon className="w-5 h-5" />
+        <div className="bg-white dark:bg-[#0b0f19] rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-all duration-200">
+            <div className="flex justify-between items-start mb-4">
+                <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{title}</p>
+                <div className={`p-2.5 rounded-xl border ${colorVariants[color] || colorVariants.blue}`}>
+                    <Icon className="w-4 h-4" />
                 </div>
             </div>
-            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10 font-outfit">{value}</h3>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight font-outfit">{value}</h3>
         </div>
     )
 }
@@ -249,13 +239,13 @@ function MetricCard({ title, value, icon: Icon, color = "blue" }: { title: strin
 function AlertItem({ title, time, type }: { title: string, time: string, type: string }) {
     const isNew = type === 'danger'
     return (
-        <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white dark:hover:bg-white/5 border border-transparent hover:border-slate-200/50 dark:hover:border-white/10 transition-all group cursor-pointer shadow-sm hover:shadow-md">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${isNew ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-300'}`}>
-                {isNew ? <Bell className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/60 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800 text-xs">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isNew ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                {isNew ? <Bell className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{title}</p>
-                <p className="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 uppercase mt-0.5">{time}</p>
+                <p className="font-bold text-slate-900 dark:text-white truncate">{title}</p>
+                <p className="text-[0.65rem] font-medium text-slate-400 uppercase mt-0.5">{time}</p>
             </div>
         </div>
     )
