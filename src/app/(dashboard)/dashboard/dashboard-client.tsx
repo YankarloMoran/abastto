@@ -210,6 +210,24 @@ export function DashboardClient({
                                 </div>
                             )}
                         </div>
+
+                        {/* Predictive Reorder IA Banner */}
+                        {isBuyer && (
+                            <div className="mt-5 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200 dark:border-blue-900/40">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Badge className="bg-blue-600 text-white text-[0.6rem] font-bold px-2 py-0.5">Sugerencia IA</Badge>
+                                    <span className="text-xs font-bold text-slate-900 dark:text-white">Reabastecimiento Predictivo</span>
+                                </div>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-3">
+                                    Nexus IA analiza el historial de compras para prever necesidades de inventario antes de que se agoten.
+                                </p>
+                                <Link href="/rfq/create">
+                                    <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 rounded-lg cursor-pointer">
+                                        Crear Licitación Periódica
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>

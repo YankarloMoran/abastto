@@ -22,6 +22,51 @@ interface UserContext {
 
 export function getAuthenticatedTools(user: UserContext) {
   return {
+    searchOpenRfqs: tool({
+      description: 'Busca licitaciones abiertas en la plataforma por palabra clave o categoría. Usa cuando el usuario pregunte por licitaciones abiertas o productos disponibles.',
+      inputSchema: z.object({
+        query: z.string().optional().describe('Término de búsqueda o producto.'),
+        category: z.enum(['TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER']).optional(),
+      }),
+      execute: async ({ query, category }) => {
+        const where: Record<string, unknown> = {
+          status: 'OPEN',
+          deadline: { gt: new Date() }
+        }
+        if (category) where.category = category
+        if (query) {
+          where.OR = [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } }
+          ]
+        }
+
+        const rfqs = await prisma.rfq.findMany({
+          where,
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            budget: true,
+            deadline: true,
+            company: { select: { name: true } }
+          },
+          take: 8
+        })
+
+        return {
+          total: rfqs.length,
+          rfqs: rfqs.map(r => ({
+            id: r.id,
+            title: r.title,
+            category: r.category,
+            buyer: r.company.name,
+            deadline: r.deadline.toISOString()
+          }))
+        }
+      }
+    }),
+
     getRfqSummary: tool({
       description: 'Obtiene un resumen de las licitaciones (RFQs) del usuario. Usa esta herramienta cuando el usuario pregunte sobre sus licitaciones, solicitudes de cotización, o estado de sus procesos de compra.',
       inputSchema: z.object({
