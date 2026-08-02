@@ -1,12 +1,12 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import RegisterForm from './register-form'
-import { AlertCircle, Building2, CheckCircle2, ShieldCheck, FileCheck, Layers } from 'lucide-react'
+import { AlertCircle, ShieldCheck, FileCheck, Layers } from 'lucide-react'
 import Link from 'next/link'
 
 /**
  * Página de registro empresarial en Abastto.
- * Diseño corporativo B2B estructurado sin clichés gráficos ni placeholders.
+ * Lenguaje profesional, claro e intuitivo sin jerga técnica.
  */
 export default async function RegisterPage({
     searchParams
@@ -48,13 +48,13 @@ export default async function RegisterPage({
 
                         <div className="max-w-md">
                             <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold tracking-wider uppercase mb-5 inline-block">
-                                Registro Corporativo Homologado
+                                Registro de Empresa Verificada
                             </span>
                             <h1 className="text-3xl font-extrabold mb-6 leading-snug font-outfit text-white">
-                                Integre su organización a la red de abastecimiento B2B.
+                                Únase a la red conectada de compras en Guatemala.
                             </h1>
                             <p className="text-slate-400 text-sm leading-relaxed font-medium mb-10">
-                                Active su perfil empresarial como Comprador o Proveedor para gestionar licitaciones con validación de NIT en Guatemala.
+                                Active su perfil como Comprador o Proveedor para enviar y recibir solicitudes comerciales con datos verificados.
                             </p>
                         </div>
 
@@ -74,8 +74,8 @@ export default async function RegisterPage({
                                     <ShieldCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white text-sm">Homologación de Expedientes KYC</h4>
-                                    <p className="text-slate-400 text-xs mt-0.5">Resguardo legal de RTU, Patente y Nombramiento de Representante.</p>
+                                    <h4 className="font-bold text-white text-sm">Verificación de Documentos Legales</h4>
+                                    <p className="text-slate-400 text-xs mt-0.5">Resguardo seguro de RTU, Patente y Nombramiento de Representante.</p>
                                 </div>
                             </div>
 
@@ -85,7 +85,7 @@ export default async function RegisterPage({
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-white text-sm">Roles y Permisos de Equipo</h4>
-                                    <p className="text-slate-400 text-xs mt-0.5">Jerarquía de compras con solicitud de aprobación obligatoria para miembros.</p>
+                                    <p className="text-slate-400 text-xs mt-0.5">Jerarquía de compras con aprobación requerida para los miembros de su empresa.</p>
                                 </div>
                             </div>
                         </div>
@@ -111,7 +111,7 @@ export default async function RegisterPage({
                                 Crear Perfil Empresarial
                             </h2>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                {invitation ? `Te estás uniendo a la empresa "${invitation.company.name}"` : 'Complete los datos corporativos para registrar su organización en Abastto'}
+                                {invitation ? `Te estás uniendo a la empresa "${invitation.company.name}"` : 'Complete los datos de su empresa para registrarse en Abastto'}
                             </p>
                         </div>
 

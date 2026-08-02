@@ -98,15 +98,15 @@ export function VerificationClient({ company }: { company: CompanyData }) {
                     className="border-dashed border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-2xl h-11 px-5 cursor-pointer shrink-0 transition-all"
                 >
                     {isToggling ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2 text-blue-500" />}
-                    {company.isVerified ? "Desactivar Homologación (Pruebas)" : "Activar Homologación Rápida"}
+                    {company.isVerified ? "Desactivar Verificación (Pruebas)" : "Activar Verificación Rápida"}
                 </Button>
             </div>
 
             <div className="p-5 bg-blue-50/80 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-2xl flex items-start gap-4">
                 <AlertTriangle className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <div>
-                    <h4 className="text-sm font-black text-blue-900 dark:text-blue-200 uppercase tracking-widest">Protocolo de Confianza Superior</h4>
-                    <p className="text-sm text-blue-800/80 dark:text-blue-300/80 mt-1 font-medium leading-relaxed">Abastto es una infraestructura de alta integridad. Para realizar licitaciones de gran escala, las entidades deben estar homologadas para garantizar la seguridad jurídica de todas las partes.</p>
+                    <h4 className="text-sm font-black text-blue-900 dark:text-blue-200 uppercase tracking-widest">Protocolo de Confianza</h4>
+                    <p className="text-sm text-blue-800/80 dark:text-blue-300/80 mt-1 font-medium leading-relaxed">Abastto ayuda a conectar empresas verificadas. Para realizar solicitudes comerciales de forma segura, las empresas deben validar su documentación legal.</p>
                 </div>
             </div>
 
@@ -114,13 +114,13 @@ export function VerificationClient({ company }: { company: CompanyData }) {
                 <CardHeader className="border-b dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle className="text-slate-900 dark:text-white font-black">Estado de Homologación</CardTitle>
-                            <CardDescription className="dark:text-slate-400 font-medium italic">Resumen de su validación corporativa</CardDescription>
+                            <CardTitle className="text-slate-900 dark:text-white font-black">Estado de Verificación</CardTitle>
+                            <CardDescription className="dark:text-slate-400 font-medium italic">Resumen de su validación empresarial</CardDescription>
                         </div>
                         {company.isVerified ? (
-                            <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 font-black px-4 py-1.5 rounded-full">💎 Organización Homologada</Badge>
+                            <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 font-black px-4 py-1.5 rounded-full">💎 Empresa Verificada</Badge>
                         ) : company.kycStatus === 'REVIEW_REQUESTED' ? (
-                            <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800 font-black px-4 py-1.5 rounded-full"><Clock className="w-4 h-4 mr-2"/> Auditoría en Proceso</Badge>
+                            <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800 font-black px-4 py-1.5 rounded-full"><Clock className="w-4 h-4 mr-2"/> Revisión en Proceso</Badge>
                         ) : (
                             <Badge variant="outline" className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 font-black px-4 py-1.5 rounded-full uppercase tracking-tighter">Acceso Restringido</Badge>
                         )}
@@ -165,7 +165,7 @@ export function VerificationClient({ company }: { company: CompanyData }) {
                                         {isRequesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                         Solicitar Verificación Oficial
                                     </Button>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Al solicitar verificación, nuestro equipo legal revisará los documentos en un margen de 24 horas.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Al solicitar verificación, nuestro equipo revisará los documentos en un margen de 24 horas.</p>
                                 </div>
                             )}
                         </div>
@@ -174,7 +174,7 @@ export function VerificationClient({ company }: { company: CompanyData }) {
                     {company.isVerified && (
                         <div className="text-center py-8">
                             <ShieldCheck className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">¡Tu empresa está homologada!</h3>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white">¡Tu empresa está verificada!</h3>
                             <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2 font-medium">Tienes acceso completo e ilimitado para publicar requerimientos, emitir cotizaciones y utilizar el copiloto Nexus AI.</p>
                         </div>
                     )}
@@ -183,7 +183,7 @@ export function VerificationClient({ company }: { company: CompanyData }) {
                         <div className="text-center py-8 border-2 border-dashed border-amber-200 dark:border-amber-800/40 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20">
                             <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4 animate-pulse" />
                             <h3 className="text-lg font-black text-amber-900 dark:text-amber-200">Tus documentos están en revisión</h3>
-                            <p className="text-amber-800/80 dark:text-amber-300/80 max-w-md mx-auto mt-2 font-medium">Hemos recibido tu expedición. Nuestro equipo legal la validará a la brevedad. Recibirás una notificación inmediata al ser homologada.</p>
+                            <p className="text-amber-800/80 dark:text-amber-300/80 max-w-md mx-auto mt-2 font-medium">Hemos recibido tus documentos. Nuestro equipo los validará a la brevedad. Recibirás una notificación inmediata al ser verificada.</p>
                         </div>
                     )}
                 </CardContent>

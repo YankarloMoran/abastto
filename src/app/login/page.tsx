@@ -2,12 +2,12 @@
 
 import React, { useActionState, useState } from 'react'
 import { authenticate } from '@/lib/actions'
-import { ArrowRight, ShieldCheck, Lock, Mail, Eye, EyeOff, BoxIcon, Zap, BarChart3, FileSpreadsheet } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Lock, Mail, Eye, EyeOff, BoxIcon, Zap, FileSpreadsheet } from 'lucide-react'
 import Link from 'next/link'
 
 /**
  * Página de inicio de sesión de Abastto.
- * Diseño empresarial B2B limpio sin elementos gráficos artificiales o clichés.
+ * Lenguaje profesional, claro e intuitivo sin jerga técnica.
  */
 export default function LoginPage() {
     const [errorMessage, dispatch] = useActionState(authenticate, undefined)
@@ -16,7 +16,7 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex flex-col bg-[#f8fafc] dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-300">
             <div className="flex-grow flex flex-col lg:flex-row">
-                {/* Left Side - Enterprise B2B Value Proposition */}
+                {/* Left Side - Enterprise Value Proposition */}
                 <div className="hidden lg:flex lg:w-1/2 bg-[#0a0f1d] text-white p-14 flex-col justify-between relative border-r border-slate-800/80">
                     <div className="relative z-10">
                         <Link href="/" className="flex items-center gap-3 mb-16 group cursor-pointer w-fit">
@@ -30,13 +30,13 @@ export default function LoginPage() {
 
                         <div className="max-w-xl">
                             <span className="px-3.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-xs font-semibold tracking-wider uppercase mb-6 inline-block">
-                                Plataforma B2B Institucional
+                                Plataforma Comercial de Compras
                             </span>
                             <h1 className="text-4xl font-extrabold mb-6 leading-tight font-outfit text-white">
-                                Control total y trazabilidad en sus compras corporativas.
+                                Control total y organización en sus requerimientos comerciales.
                             </h1>
                             <p className="text-slate-400 text-base leading-relaxed font-medium mb-10">
-                                Conectamos departamentos de compras con proveedores calificados en Guatemala bajo protocolos de transparencia y auditoría continua.
+                                Conectamos compradores con proveedores verificados en Guatemala para optimizar sus cotizaciones con total transparencia.
                             </p>
                         </div>
 
@@ -46,8 +46,8 @@ export default function LoginPage() {
                                     <ShieldCheck className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white text-sm">Homologación Rigurosa de Proveedores</h4>
-                                    <p className="text-slate-400 text-xs mt-1">Verificación legal de NIT, Patente y Representación Legal antes de cotizar.</p>
+                                    <h4 className="font-bold text-white text-sm">Verificación de Proveedores</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Validación de documentos legales e identificación fiscal antes de cotizar.</p>
                                 </div>
                             </div>
 
@@ -56,8 +56,8 @@ export default function LoginPage() {
                                     <Zap className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white text-sm">Apertura de Sobres Confidenciales</h4>
-                                    <p className="text-slate-400 text-xs mt-1">Protocolo blindado de recepción de ofertas hasta la fecha oficial de evaluación.</p>
+                                    <h4 className="font-bold text-white text-sm">Recepción Confidencial de Ofertas</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Protección de propuestas comerciales hasta la fecha fijada de evaluación.</p>
                                 </div>
                             </div>
 
@@ -67,15 +67,15 @@ export default function LoginPage() {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-white text-sm">Generación Automática de Órdenes de Compra</h4>
-                                    <p className="text-slate-400 text-xs mt-1">Exportación formal en PDF al adjudicar licitaciones multi-producto.</p>
+                                    <p className="text-slate-400 text-xs mt-1">Descarga directa en PDF al confirmar la aceptación de una cotización.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="relative z-10 pt-8 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500 font-medium">
-                        <span>Abastto B2B Guatemala &copy; {new Date().getFullYear()}</span>
-                        <span>Seguridad TLS 1.3 / Encriptación 256-bit</span>
+                        <span>Abastto Guatemala &copy; {new Date().getFullYear()}</span>
+                        <span>Conexión Segura TLS 1.3</span>
                     </div>
                 </div>
 
@@ -95,16 +95,16 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-outfit tracking-tight">Iniciar Sesión Corporativa</h2>
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-outfit tracking-tight">Iniciar Sesión</h2>
                             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                Ingrese sus credenciales autorizadas para ingresar al panel
+                                Ingrese sus datos para acceder a su panel de control
                             </p>
                         </div>
 
                         <form action={dispatch} className="space-y-5">
                             <div>
                                 <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                                    Correo Electrónico Empresarial
+                                    Correo Electrónico
                                 </label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -117,7 +117,7 @@ export default function LoginPage() {
                                         autoComplete="email"
                                         required
                                         className="w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium transition-all"
-                                        placeholder="usuario@empresa.com"
+                                        placeholder="correo@ejemplo.com"
                                     />
                                 </div>
                             </div>
@@ -166,9 +166,9 @@ export default function LoginPage() {
                             </button>
 
                             <p className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
-                                ¿No tiene una cuenta corporativa aún?{' '}
+                                ¿No tiene una cuenta aún?{' '}
                                 <Link href="/register" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold transition-colors">
-                                    Registrar Empresa
+                                    Crear Cuenta
                                 </Link>
                             </p>
                         </form>
