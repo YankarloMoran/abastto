@@ -9,7 +9,7 @@ const RegisterUserSchema = z.object({
     name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
     email: z.string().email({ message: 'Por favor ingresa un correo válido.' }),
     password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
-    role: z.enum(['BUYER', 'SUPPLIER', 'ADMIN', 'MEMBER']), // ADMIN and MEMBER allowed initially for invitations
+    role: z.enum(['BUYER', 'SUPPLIER', 'ADMIN']).optional().default('BUYER'),
 })
 
 const RegisterCompanySchema = z.object({
@@ -44,11 +44,12 @@ export type State = {
 export async function registerUser(prevState: State, formData: FormData): Promise<State> {
     const inviteToken = formData.get('inviteToken') as string | null
 
+    const rawRole = formData.get('role') as string | null
     const userData = {
         name: formData.get('name'),
         email: formData.get('email'),
         password: formData.get('password'),
-        role: formData.get('role'),
+        role: rawRole && ['BUYER', 'SUPPLIER', 'ADMIN'].includes(rawRole) ? rawRole : 'BUYER',
     }
 
     const userFields = RegisterUserSchema.safeParse(userData)
@@ -72,11 +73,17 @@ export async function registerUser(prevState: State, formData: FormData): Promis
 
         if (inviteToken) {
             // INVITATION FLOW -> Join existing company
-            const invitation = await prisma.invitation.findUnique({ where: { token: inviteToken } })
+            const invitation = await prisma.invitation.findUnique({
+                where: { token: inviteToken },
+                include: { company: { include: { users: { select: { role: true }, take: 1 } } } }
+            })
 
             if (!invitation || new Date(invitation.expiresAt) < new Date()) {
                 return { message: 'La invitación es inválida o expiró. Solicita a tu administrador una nueva.' }
             }
+
+            // Inherit the role of the company (SUPPLIER or BUYER)
+            const companyPrimaryRole = invitation.company.users[0]?.role || 'BUYER'
 
             // Transaction: Create user, link to company, delete invitation
             await prisma.$transaction(async (tx) => {
@@ -87,7 +94,7 @@ export async function registerUser(prevState: State, formData: FormData): Promis
                         password: hashedPassword,
                         companyRole: invitation.role, // from invitation
                         companyId: invitation.companyId,
-                        role: 'BUYER' // Defaulting to BUYER for invited members
+                        role: companyPrimaryRole
                     }
                 })
 

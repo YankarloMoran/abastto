@@ -150,9 +150,7 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
             </button>
 
             {/* Desktop sidebar */}
-            <aside className="w-[280px] bg-white/80 dark:bg-[#020617]/60 backdrop-blur-2xl border-r border-slate-200 dark:border-white/5 flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 z-30 transition-colors relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-violet-500/5 blur-[80px] rounded-full pointer-events-none" />
+            <aside className="w-[280px] bg-white dark:bg-[#0b0f19] border-r border-slate-200 dark:border-slate-800/80 flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 z-30 transition-colors relative overflow-hidden">
                 {sidebarContent}
             </aside>
 
@@ -168,13 +166,12 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
             <aside
                 className={`
                     fixed top-0 left-0 bottom-0 w-[280px] z-50 md:hidden
-                    bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl
-                    border-r border-slate-200 dark:border-white/10 shadow-2xl
+                    bg-white dark:bg-[#0b0f19]
+                    border-r border-slate-200 dark:border-slate-800 shadow-2xl
                     transition-transform duration-300 ease-out overflow-hidden
                     ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
             >
-                <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
                 {/* Close button */}
                 <button
                     onClick={() => setMobileOpen(false)}

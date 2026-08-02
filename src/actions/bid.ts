@@ -159,8 +159,8 @@ export async function acceptBid(bidId: string, rfqId: string) {
         if (rfq.companyId !== session.user.companyId) {
             return { success: false, message: 'Tu empresa no es dueña de esta solicitud.' }
         }
-        if (new Date() < rfq.deadline) {
-            return { success: false, message: 'No puedes aceptar ofertas antes de la fecha límite.' }
+        if (rfq.status === 'CLOSED' || rfq.status === 'DELIVERED') {
+            return { success: false, message: 'La solicitud ya fue finalizada.' }
         }
 
         // Use transaction to ensure data consistency

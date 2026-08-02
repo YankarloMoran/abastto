@@ -8,20 +8,18 @@ import { logActivity } from '@/lib/activity-log'
 export async function uploadKycDocument(formData: FormData) {
     const session = await auth()
     
-    // Solo permitimos a miembros de la empresa subir documentos
     if (!session?.user?.companyId) {
-        throw new Error("No tienes una empresa vinculada.")
+        return { success: false, message: "No tienes una empresa vinculada." }
     }
 
     const type = formData.get('type') as string
     const url = formData.get('url') as string
 
     if (!type || !url) {
-        throw new Error("Faltan campos obligatorios.")
+        return { success: false, message: "Faltan campos obligatorios." }
     }
 
     try {
-        // Verificar si ya existe un documento de este tipo, y si es así, actualizarlo
         const existingDoc = await (prisma as any).companyDocument.findFirst({
             where: {
                 companyId: session.user.companyId,
@@ -54,22 +52,21 @@ export async function uploadKycDocument(formData: FormData) {
         })
 
         revalidatePath('/settings/verification')
-        return;
+        return { success: true, message: 'Documento vinculado correctamente.' }
     } catch (error) {
         console.error("Error al subir documento KYC:", error)
-        throw new Error("Ocurrió un error guardando el link del documento.")
+        return { success: false, message: "Ocurrió un error guardando el link del documento." }
     }
 }
 
-export async function requestKycReview(formData: FormData) {
+export async function requestKycReview(formData?: FormData) {
     const session = await auth()
 
     if (!session?.user?.companyId) {
-        throw new Error("No tienes una empresa vinculada.")
+        return { success: false, message: "No tienes una empresa vinculada." }
     }
 
     try {
-        // Check if they have all 3 required documents
         const docs = await (prisma as any).companyDocument.findMany({
             where: { companyId: session.user.companyId }
         })
@@ -79,7 +76,7 @@ export async function requestKycReview(formData: FormData) {
         const hasRep = docs.some((d: any) => d.type === 'REPRESENTACION_LEGAL')
 
         if (!hasRtu || !hasPatente || !hasRep) {
-            throw new Error("Faltan documentos obligatorios para solicitar revisión.")
+            return { success: false, message: "Faltan documentos obligatorios para solicitar revisión." }
         }
 
         // Auto-Approving for Testing Purposes (Simulating Admin Approval)
@@ -99,9 +96,48 @@ export async function requestKycReview(formData: FormData) {
         })
 
         revalidatePath('/settings/verification')
-        return;
+        revalidatePath('/dashboard')
+        return { success: true, message: '¡Empresa homologada con éxito!' }
     } catch (error) {
         console.error("Error al solicitar revisión KYC:", error)
-        throw new Error("Ocurrió un error procesando tu solicitud.")
+        return { success: false, message: "Ocurrió un error procesando tu solicitud." }
+    }
+}
+
+/**
+ * Permite a cualquier usuario autenticado en modo desarrollo/demo o administración
+ * activar/desactivar el estado de verificación de su empresa para pruebas end-to-end.
+ */
+export async function quickToggleVerification() {
+    const session = await auth()
+    if (!session?.user?.companyId) return { success: false, message: "No autenticado." }
+
+    try {
+        const company = await prisma.company.findUnique({
+            where: { id: session.user.companyId },
+            select: { isVerified: true }
+        })
+
+        if (!company) return { success: false, message: "Empresa no encontrada." }
+
+        const newVerifiedState = !company.isVerified
+
+        await prisma.company.update({
+            where: { id: session.user.companyId },
+            data: {
+                isVerified: newVerifiedState,
+                kycStatus: newVerifiedState ? 'APPROVED' : 'PENDING'
+            }
+        })
+
+        revalidatePath('/settings/verification')
+        revalidatePath('/dashboard')
+        revalidatePath('/rfq')
+        return { 
+            success: true, 
+            message: newVerifiedState ? 'Organización homologada para pruebas.' : 'Verificación reiniciada.' 
+        }
+    } catch (error) {
+        return { success: false, message: "Error al cambiar estado de verificación." }
     }
 }

@@ -34,11 +34,7 @@ export default async function DashboardLayout({
     const showOnboarding = !currentUser?.onboardingComplete
 
     return (
-        <div className="flex min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-500 overflow-hidden relative">
-            
-            {/* Global Animated Background Orbs for Dashboard */}
-            <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 dark:bg-blue-600/5 blur-[120px] rounded-full pointer-events-none animate-pulse duration-[10s] -z-0" />
-            <div className="fixed bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-indigo-600/10 dark:bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none -z-0" />
+        <div className="flex min-h-screen bg-[#f8fafc] dark:bg-[#090d16] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 overflow-hidden relative">
 
             {/* Global Sidebar */}
             <AppSidebar

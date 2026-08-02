@@ -1,16 +1,12 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import RegisterForm from './register-form'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Building2, CheckCircle2, ShieldCheck, FileCheck, Layers } from 'lucide-react'
 import Link from 'next/link'
 
-
 /**
- * Página principal de registro para nuevas empresas o miembros invitados.
- * Si se accede a través de un enlace de invitación, verifica la validez del token
- * y pasa los datos de la invitación al formulario de registro.
- * 
- * @param searchParams - Parámetros de la URL (querystring) que pueden contener un token.
+ * Página de registro empresarial en Abastto.
+ * Diseño corporativo B2B estructurado sin clichés gráficos ni placeholders.
  */
 export default async function RegisterPage({
     searchParams
@@ -36,93 +32,93 @@ export default async function RegisterPage({
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0a0f1c] flex flex-col transition-colors duration-300">
-            <main className="flex-grow flex flex-col lg:flex-row shadow-2xl overflow-hidden relative">
-                {/* Panel Informativo (Izquierda) */}
-                <div className="hidden lg:flex lg:w-[40%] bg-[#020617] text-white p-16 flex-col justify-between relative">
-                    {/* Background decorativo */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent" />
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none animate-pulse duration-[10s]" />
-                    <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-600/20 blur-[100px] rounded-full pointer-events-none" />
-
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-[#090d16] text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300">
+            <main className="flex-grow flex flex-col lg:flex-row border-b border-slate-200 dark:border-slate-800">
+                {/* Left Side - Enterprise Industry Context */}
+                <div className="hidden lg:flex lg:w-[42%] bg-[#0a0f1d] text-white p-14 flex-col justify-between relative border-r border-slate-800/80">
                     <div className="relative z-10">
-                        <Link href="/" className="flex items-center gap-2.5 mb-16 group w-fit">
-                            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-all">
-                                <BoxIcon className="w-7 h-7 text-white" />
+                        <Link href="/" className="flex items-center gap-3 mb-14 group cursor-pointer w-fit">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-md">
+                                <BoxIcon className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-3xl font-black tracking-tighter text-white font-outfit">
+                            <span className="text-2xl font-black tracking-tighter text-white font-outfit">
                                 ABASTTO
                             </span>
                         </Link>
 
-                        <h1 className="text-4xl font-extrabold mb-8 leading-[1.1] font-outfit text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">
-                            La red más eficiente para el crecimiento de tu empresa.
-                        </h1>
+                        <div className="max-w-md">
+                            <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold tracking-wider uppercase mb-5 inline-block">
+                                Registro Corporativo Homologado
+                            </span>
+                            <h1 className="text-3xl font-extrabold mb-6 leading-snug font-outfit text-white">
+                                Integre su organización a la red de abastecimiento B2B.
+                            </h1>
+                            <p className="text-slate-400 text-sm leading-relaxed font-medium mb-10">
+                                Active su perfil empresarial como Comprador o Proveedor para gestionar licitaciones con validación de NIT en Guatemala.
+                            </p>
+                        </div>
 
-                        <div className="space-y-8">
-                            <div className="flex gap-4 items-start">
-                                <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 border border-blue-500/30">
-                                    <AlertCircle className="w-5 h-5 text-blue-400" />
+                        <div className="space-y-4 max-w-md">
+                            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-4">
+                                <div className="p-2 rounded-lg bg-blue-600/20 text-blue-400 shrink-0 mt-0.5">
+                                    <FileCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg text-white font-outfit">Estandarización Total</h3>
-                                    <p className="text-slate-300 text-sm mt-1 font-medium">Formatos de cotización uniformes para comparaciones rápidas y precisas.</p>
+                                    <h4 className="font-bold text-white text-sm">Formato de Cotización Uniforme</h4>
+                                    <p className="text-slate-400 text-xs mt-0.5">Estandarización de precios unitarios y partidas para análisis sin discrepancias.</p>
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 items-start">
-                                <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 border border-blue-500/30">
-                                    <AlertCircle className="w-5 h-5 text-blue-400" />
+                            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-4">
+                                <div className="p-2 rounded-lg bg-indigo-600/20 text-indigo-400 shrink-0 mt-0.5">
+                                    <ShieldCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg text-white font-outfit">Proveedores Verificados</h3>
-                                    <p className="text-slate-300 text-sm mt-1 font-medium">Acceso inmediato a una red de confianza con historial de cumplimiento.</p>
+                                    <h4 className="font-bold text-white text-sm">Homologación de Expedientes KYC</h4>
+                                    <p className="text-slate-400 text-xs mt-0.5">Resguardo legal de RTU, Patente y Nombramiento de Representante.</p>
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 items-start">
-                                <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 border border-blue-500/30">
-                                    <AlertCircle className="w-5 h-5 text-blue-400" />
+                            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-4">
+                                <div className="p-2 rounded-lg bg-violet-600/20 text-violet-400 shrink-0 mt-0.5">
+                                    <Layers className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg text-white font-outfit">Gestión Centralizada</h3>
-                                    <p className="text-slate-300 text-sm mt-1 font-medium">Toda la documentación y transacciones en un solo tablero inteligente.</p>
+                                    <h4 className="font-bold text-white text-sm">Roles y Permisos de Equipo</h4>
+                                    <p className="text-slate-400 text-xs mt-0.5">Jerarquía de compras con solicitud de aprobación obligatoria para miembros.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="relative z-10 pt-12 border-t border-white/10 mt-auto">
-                        <p className="text-slate-400 text-xs font-bold tracking-widest uppercase mb-6">CONFIADO POR LÍDERES DEL SECTOR</p>
-                        <div className="flex gap-8 opacity-40 grayscale filter transition-all hover:grayscale-0">
-                            {/* Logos placeholders simplificados */}
-                            <div className="h-6 w-24 bg-slate-500 rounded"></div>
-                            <div className="h-6 w-24 bg-slate-500 rounded"></div>
-                            <div className="h-6 w-24 bg-slate-500 rounded"></div>
+                    <div className="relative z-10 pt-8 border-t border-slate-800/80">
+                        <p className="text-slate-500 text-[0.7rem] font-bold tracking-widest uppercase mb-3">COBERTURA EN SECTORES CLAVE EN GUATEMALA</p>
+                        <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-400">
+                            <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5">Tecnología</span>
+                            <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5">Construcción</span>
+                            <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5">Manufactura</span>
+                            <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5">Salud & Médico</span>
+                            <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5">Agroindustria</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Formulario (Derecha) */}
-                <div className="w-full lg:w-[60%] flex flex-col items-center justify-center bg-slate-50 dark:bg-[#030712] py-16 px-6 sm:px-12 relative overflow-y-auto max-h-screen lg:max-h-none transition-colors">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 blur-[150px] rounded-full pointer-events-none" />
-                    {/* Elementos decorativos móviles */}
-                    <div className="lg:hidden absolute top-0 right-0 w-64 h-64 bg-blue-500/10 dark:bg-blue-600/10 blur-[80px] -z-10 rounded-full" />
-
-                    <div className="w-full max-w-2xl relative z-10">
-                        <div className="mb-10 text-center lg:text-left">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                {/* Right Side - Registration Form */}
+                <div className="w-full lg:w-[58%] flex flex-col items-center justify-center p-6 sm:p-12">
+                    <div className="w-full max-w-2xl bg-white dark:bg-[#0b0f19] p-8 sm:p-10 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 transition-colors">
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-outfit tracking-tight">
                                 Crear Perfil Empresarial
                             </h2>
-                            <p className="mt-2 text-slate-600 dark:text-slate-400 font-medium">
-                                Completa los datos para activar tu cuenta corporativa.
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                {invitation ? `Te estás uniendo a la empresa "${invitation.company.name}"` : 'Complete los datos corporativos para registrar su organización en Abastto'}
                             </p>
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 text-red-800 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-500/20 flex gap-3 items-center backdrop-blur-sm shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/50 flex gap-3 items-center text-sm font-semibold">
                                 <AlertCircle className="w-5 h-5 shrink-0" />
-                                <p className="text-sm font-semibold">{error}</p>
+                                <p>{error}</p>
                             </div>
                         )}
 
@@ -130,11 +126,10 @@ export default async function RegisterPage({
                     </div>
                 </div>
             </main>
-            
-
         </div>
     )
 }
+
 function BoxIcon(props: any) {
     return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
 }

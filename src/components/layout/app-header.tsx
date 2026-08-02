@@ -11,7 +11,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ userName, userRole }: AppHeaderProps) {
     return (
-        <header className="h-[64px] bg-white/60 dark:bg-[#020617]/50 backdrop-blur-2xl border-b border-slate-200/50 dark:border-white/5 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 shrink-0 transition-colors">
+        <header className="h-[64px] bg-white/90 dark:bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 shrink-0 transition-colors">
             {/* Left: Search */}
             <div className="flex items-center gap-3 flex-1 max-w-[420px] ml-12 md:ml-0">
                 <SearchCommand />
