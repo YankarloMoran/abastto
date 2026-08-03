@@ -5,8 +5,8 @@ import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-    LayoutDashboard, FileText, Activity, Users, Settings,
-    LogOut, BoxIcon, Menu, X, Bell
+    LayoutDashboard, FileText, BarChart2, Users, Settings,
+    LogOut, Menu, X, Bell, UserCog
 } from 'lucide-react'
 
 interface AppSidebarProps {
@@ -18,28 +18,24 @@ interface AppSidebarProps {
 const NAV_ITEMS = (isBuyer: boolean) => [
     { icon: LayoutDashboard, label: 'Inicio', href: '/dashboard' },
     { icon: FileText, label: isBuyer ? 'Mis Licitaciones' : 'Oportunidades', href: '/rfq' },
-    ...(isBuyer ? [{ icon: Activity, label: 'Analíticas', href: '/analytics' }] : []),
+    ...(isBuyer ? [{ icon: BarChart2, label: 'Analíticas', href: '/analytics' }] : []),
     { icon: Users, label: 'Red de Empresas', href: '/network' },
     { icon: Bell, label: 'Notificaciones', href: '/notifications' },
 ]
 
-const ADMIN_ITEMS = [
+const BOTTOM_ITEMS = [
     { icon: Settings, label: 'Configuración', href: '/settings' },
-    { icon: Users, label: 'Equipo', href: '/settings/team' },
+    { icon: UserCog, label: 'Equipo', href: '/settings/team' },
 ]
 
 export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
     const pathname = usePathname()
     const [mobileOpen, setMobileOpen] = useState(false)
 
-    // Close on route change
     useEffect(() => {
-        if (mobileOpen) {
-            setMobileOpen(false)
-        }
-    }, [pathname, mobileOpen])
+        setMobileOpen(false)
+    }, [pathname])
 
-    // Prevent body scroll when mobile sidebar is open
     useEffect(() => {
         document.body.style.overflow = mobileOpen ? 'hidden' : ''
         return () => { document.body.style.overflow = '' }
@@ -52,87 +48,72 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
         return pathname.startsWith(href)
     }
 
+    const NavLink = ({ item }: { item: { icon: any; label: string; href: string } }) => {
+        const active = isActive(item.href)
+        return (
+            <Link
+                href={item.href}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[0.8125rem] font-medium transition-all ${
+                    active
+                        ? 'bg-slate-100 dark:bg-white/8 text-slate-900 dark:text-white'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
+                }`}
+            >
+                <item.icon className={`w-[17px] h-[17px] shrink-0 ${active ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'}`} />
+                {item.label}
+                {active && <span className="ml-auto w-1 h-1 rounded-full bg-blue-500" />}
+            </Link>
+        )
+    }
+
     const sidebarContent = (
-        <div className="flex flex-col h-full relative z-10">
+        <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="p-6 pb-8 border-b border-slate-200/50 dark:border-white/5">
-                <Link href="/dashboard" className="flex items-center gap-3 text-blue-600 dark:text-white font-black text-2xl tracking-tighter hover:opacity-80 transition-all font-outfit">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
-                        <BoxIcon className="w-6 h-6 text-white" />
+            <div className="px-5 pt-5 pb-6">
+                <Link href="/dashboard" className="flex items-center gap-2.5 group">
+                    <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+                        <span className="text-white dark:text-slate-900 text-xs font-black tracking-tighter">AB</span>
                     </div>
-                    ABASTTO
+                    <span className="font-bold text-slate-900 dark:text-white text-[0.95rem] tracking-tight group-hover:opacity-70 transition-opacity">
+                        Abastto
+                    </span>
                 </Link>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-                {NAV_ITEMS(isBuyer).map((item) => {
-                    const active = isActive(item.href)
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`
-                                group flex items-center gap-3 px-4 py-3 text-[0.8125rem] font-bold rounded-xl transition-all relative overflow-hidden
-                                ${active
-                                    ? 'text-blue-700 dark:text-white bg-blue-50/80 dark:bg-white/10 border border-blue-100/60 dark:border-white/10 shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
-                                }
-                            `}
-                        >
-                            {active && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-blue-400 to-blue-600" />}
-                            <item.icon className={`w-[18px] h-[18px] shrink-0 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'} transition-colors relative z-10`} />
-                            <span className="truncate relative z-10">{item.label}</span>
-                        </Link>
-                    )
-                })}
+            {/* Main nav */}
+            <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+                {NAV_ITEMS(isBuyer).map(item => <NavLink key={item.href} item={item} />)}
 
-                {/* Admin Section */}
-                <div className="pt-8 pb-2 px-4 flex items-center gap-2">
-                    <div className="h-[1px] flex-1 bg-slate-200 dark:bg-white/5" />
-                    <p className="text-[0.6rem] font-bold tracking-[0.15em] text-slate-400 dark:text-slate-500 uppercase">
-                        Admin
+                {/* Divider + settings */}
+                <div className="pt-5 pb-1">
+                    <p className="px-3 text-[0.6rem] font-semibold tracking-widest uppercase text-slate-400 dark:text-slate-600 mb-2">
+                        Cuenta
                     </p>
-                    <div className="h-[1px] flex-1 bg-slate-200 dark:bg-white/5" />
+                    {BOTTOM_ITEMS.map(item => <NavLink key={item.href} item={item} />)}
                 </div>
-                {ADMIN_ITEMS.map((item) => {
-                    const active = isActive(item.href)
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`
-                                group flex items-center gap-3 px-4 py-3 text-[0.8125rem] font-bold rounded-xl transition-all relative overflow-hidden
-                                ${active
-                                    ? 'text-blue-700 dark:text-white bg-blue-50/80 dark:bg-white/10 border border-blue-100/60 dark:border-white/10 shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
-                                }
-                            `}
-                        >
-                            {active && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-blue-400 to-blue-600" />}
-                            <item.icon className={`w-[18px] h-[18px] shrink-0 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'} transition-colors relative z-10`} />
-                            <span className="truncate relative z-10">{item.label}</span>
-                        </Link>
-                    )
-                })}
             </nav>
 
-            {/* User Footer */}
-            <div className="p-4 border-t border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-transparent">
-                <Link href="/settings" className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white dark:hover:bg-white/5 transition-colors group border border-transparent hover:border-slate-200 dark:hover:border-white/10 hover:shadow-sm">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-blue-600/20 shrink-0 border border-white/10">
+            {/* User footer */}
+            <div className="mt-auto px-3 pb-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 flex items-center justify-center font-bold text-xs shrink-0">
                         {userName?.[0]?.toUpperCase() || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{userName}</p>
-                        <p className="text-[0.6rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">
+                        <p className="text-[0.8rem] font-semibold text-slate-800 dark:text-slate-200 truncate leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {userName}
+                        </p>
+                        <p className="text-[0.65rem] text-slate-400 dark:text-slate-500 leading-tight">
                             {userRole === 'BUYER' ? 'Comprador' : 'Proveedor'}
                         </p>
                     </div>
                 </Link>
-                <button onClick={() => signOut({ callbackUrl: '/login' })} className="mt-2 cursor-pointer flex items-center w-full gap-3 px-4 py-2.5 text-sm font-bold text-red-500 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group">
-                    <LogOut className="w-[18px] h-[18px] group-hover:-translate-x-1 transition-transform" />
-                    Cerrar Sesión
+                <button
+                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    className="mt-1 w-full cursor-pointer flex items-center gap-2.5 px-3 py-2 rounded-lg text-[0.8125rem] font-medium text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+                >
+                    <LogOut className="w-[15px] h-[15px]" />
+                    Cerrar sesión
                 </button>
             </div>
         </div>
@@ -143,46 +124,38 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
             {/* Mobile toggle */}
             <button
                 onClick={() => setMobileOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-40 p-2.5 rounded-xl bg-white dark:bg-[#020617]/80 backdrop-blur-md border border-slate-200 dark:border-white/10 shadow-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-slate-600 dark:text-slate-300 cursor-pointer"
                 aria-label="Abrir menú"
             >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4.5 h-4.5 w-[18px] h-[18px]" />
             </button>
 
             {/* Desktop sidebar */}
-            <aside className="w-[280px] bg-white dark:bg-[#0b0f19] border-r border-slate-200 dark:border-slate-800/80 flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 z-30 transition-colors relative overflow-hidden">
+            <aside className="w-[240px] bg-white dark:bg-[#0b0f19] border-r border-slate-200 dark:border-slate-800/70 flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 z-30 transition-colors">
                 {sidebarContent}
             </aside>
 
             {/* Mobile backdrop */}
             {mobileOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+                    className="fixed inset-0 bg-black/40 z-40 md:hidden"
                     onClick={() => setMobileOpen(false)}
                 />
             )}
 
             {/* Mobile sidebar */}
             <aside
-                className={`
-                    fixed top-0 left-0 bottom-0 w-[280px] z-50 md:hidden
-                    bg-white dark:bg-[#0b0f19]
-                    border-r border-slate-200 dark:border-slate-800 shadow-2xl
-                    transition-transform duration-300 ease-out overflow-hidden
-                    ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
-                `}
+                className={`fixed top-0 left-0 bottom-0 w-[240px] z-50 md:hidden bg-white dark:bg-[#0b0f19] border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-250 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
-                {/* Close button */}
                 <button
                     onClick={() => setMobileOpen(false)}
-                    className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer z-20"
+                    className="absolute top-4 right-3 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
                     aria-label="Cerrar menú"
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                 </button>
                 {sidebarContent}
             </aside>
         </>
     )
 }
-
