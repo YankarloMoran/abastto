@@ -76,17 +76,24 @@ export default async function RfqListPage({
     }
 
     return (
-        <div className="flex-1 p-6 md:p-10 xl:p-14 max-w-[1200px] w-full mx-auto">
-                <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1600px] w-full mx-auto space-y-6">
+                <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{isBuyer ? 'Mis Licitaciones' : 'Oportunidades de Venta'}</h1>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">{totalCount} registro{totalCount !== 1 ? 's' : ''} encontrado{totalCount !== 1 ? 's' : ''}</p>
+                        <p className="text-[0.7rem] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-1">
+                            {isBuyer ? 'Gestión de Cotizaciones' : 'Mercado Abierto'}
+                        </p>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-outfit">
+                            {isBuyer ? 'Mis Licitaciones' : 'Oportunidades de Venta'}
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-1">
+                            {totalCount} registro{totalCount !== 1 ? 's' : ''} encontrado{totalCount !== 1 ? 's' : ''}
+                        </p>
                     </div>
                     {isBuyer && (
                         <div className="flex items-center gap-3">
                             <ExportRfqsButton />
                             <Link href="/rfq/create">
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-blue-600/20">
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 px-5 rounded-xl shadow-md shadow-blue-600/20 text-xs cursor-pointer">
                                     <Plus className="w-4 h-4 mr-2" /> Crear Licitación
                                 </Button>
                             </Link>
@@ -95,52 +102,60 @@ export default async function RfqListPage({
                 </header>
 
                 {/* Filters bar */}
-                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
-                    {/* Search */}
-                    <div className="relative w-full md:max-w-xs shrink-0">
-                        <form className="relative flex items-center">
-                            <input
-                                type="text"
-                                name="q"
-                                defaultValue={searchQuery}
-                                placeholder="Filtrar por título..."
-                                className="w-full bg-white dark:bg-[#0a0f1c]/50 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-4 pr-12 py-2.5 outline-none border border-slate-200/55 dark:border-white/10 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all backdrop-blur-md"
-                            />
-                            <button type="submit" className="absolute right-2 p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </button>
-                        </form>
+                <div className="bg-white dark:bg-[#0c1020] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-4 shadow-sm">
+                    {/* Top row: Search input */}
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                        <div className="relative w-full md:max-w-md">
+                            <form className="relative flex items-center">
+                                <input
+                                    type="text"
+                                    name="q"
+                                    defaultValue={searchQuery}
+                                    placeholder="Buscar licitación por título..."
+                                    className="w-full bg-slate-50 dark:bg-slate-900/60 text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 rounded-xl pl-4 pr-10 py-2.5 outline-none border border-slate-200 dark:border-slate-800 focus:border-blue-600 transition-all"
+                                />
+                                <button type="submit" className="absolute right-2 p-1.5 rounded-lg text-slate-400 hover:text-blue-600 transition-colors cursor-pointer">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
-                    {/* Status filter */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <Filter className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 hidden md:block" />
-                        {['ALL', 'OPEN', 'EVALUATING', 'CLOSED', ...(isBuyer ? ['DRAFT_PENDING_APPROVAL'] : [])].map(status => (
-                            <Link key={status} href={buildUrl({ status, page: '1' })}>
-                                <button className={`px-3 py-1.5 text-[0.7rem] font-bold rounded-lg border transition-all cursor-pointer ${
-                                    statusFilter === status
-                                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                        : 'bg-white dark:bg-[#0a0f1c]/50 text-slate-600 dark:text-slate-400 border-slate-200/55 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
-                                }`}>
-                                    {status === 'ALL' ? 'Todas' : STATUS_LABELS[status]?.label || status}
-                                </button>
-                            </Link>
-                        ))}
-                    </div>
+                    {/* Filter Pills */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                        {/* Status filter */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
+                                <Filter className="w-3 h-3" /> Estado:
+                            </span>
+                            {['ALL', 'OPEN', 'EVALUATING', 'CLOSED', ...(isBuyer ? ['DRAFT_PENDING_APPROVAL'] : [])].map(status => (
+                                <Link key={status} href={buildUrl({ status, page: '1' })}>
+                                    <button className={`px-3 py-1 text-[0.68rem] font-bold rounded-lg border transition-all cursor-pointer ${
+                                        statusFilter === status
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                            : 'bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-400'
+                                    }`}>
+                                        {status === 'ALL' ? 'Todas' : STATUS_LABELS[status]?.label || status}
+                                    </button>
+                                </Link>
+                            ))}
+                        </div>
 
-                    {/* Category filter - visible for all */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                        {['ALL', 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'].map(cat => (
-                            <Link key={cat} href={buildUrl({ category: cat, page: '1' })}>
-                                <button className={`px-3 py-1.5 text-[0.7rem] font-bold rounded-lg border transition-all cursor-pointer ${
-                                    categoryFilter === cat
-                                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                        : 'bg-white dark:bg-[#0a0f1c]/50 text-slate-600 dark:text-slate-400 border-slate-200/55 dark:border-white/10 hover:border-blue-300 dark:hover:border-blue-800'
-                                }`}>
-                                    {cat === 'ALL' ? 'Todas Cat.' : CATEGORY_LABELS[cat] || cat}
-                                </button>
-                            </Link>
-                        ))}
+                        {/* Category filter */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider mr-1">Categoría:</span>
+                            {['ALL', 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'].map(cat => (
+                                <Link key={cat} href={buildUrl({ category: cat, page: '1' })}>
+                                    <button className={`px-3 py-1 text-[0.68rem] font-bold rounded-lg border transition-all cursor-pointer ${
+                                        categoryFilter === cat
+                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                            : 'bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                                    }`}>
+                                        {cat === 'ALL' ? 'Todas' : CATEGORY_LABELS[cat] || cat}
+                                    </button>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

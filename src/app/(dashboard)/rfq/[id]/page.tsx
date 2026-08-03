@@ -84,7 +84,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
     const acceptedBid = rfq.bids.find(b => b.status === 'ACCEPTED')
 
     return (
-        <div className="flex-1 p-6 md:p-10 xl:p-14 max-w-[1400px] w-full mx-auto">
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1600px] w-full mx-auto space-y-6">
                 {/* Page Title */}
                 <header className="mb-10">
                     <p className="text-[0.7rem] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-[0.1em] mb-0.5">Gestión Comercial</p>

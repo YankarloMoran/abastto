@@ -75,11 +75,12 @@ export default async function NetworkPage({
     }
 
     return (
-        <div className="flex-1 p-6 md:p-10 xl:p-14 max-w-[1200px] w-full mx-auto">
-                <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1600px] w-full mx-auto space-y-6">
+                <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Red de Empresas</h1>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Descubre y conecta con empresas verificadas en la plataforma</p>
+                        <p className="text-[0.7rem] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-1">Directorio Comercial</p>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-outfit">Red de Empresas</h1>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-1">Descubre y conecta con empresas verificadas en la plataforma</p>
                     </div>
                 </header>
 

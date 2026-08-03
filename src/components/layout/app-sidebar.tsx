@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard, FileText, BarChart2, Users, Settings,
-    LogOut, Menu, X, Bell, UserCog
+    LogOut, Menu, X, Bell, UserCog, BoxIcon
 } from 'lucide-react'
 
 interface AppSidebarProps {
@@ -69,14 +69,12 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
     const sidebarContent = (
         <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="px-5 pt-5 pb-6">
-                <Link href="/dashboard" className="flex items-center gap-2.5 group">
-                    <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-                        <span className="text-white dark:text-slate-900 text-xs font-black tracking-tighter">AB</span>
+            <div className="px-5 pt-6 pb-6 border-b border-slate-200/50 dark:border-white/5">
+                <Link href="/dashboard" className="flex items-center gap-3 text-blue-600 dark:text-white font-black text-2xl tracking-tighter hover:opacity-80 transition-all font-outfit">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+                        <BoxIcon className="w-6 h-6 text-white" />
                     </div>
-                    <span className="font-bold text-slate-900 dark:text-white text-[0.95rem] tracking-tight group-hover:opacity-70 transition-opacity">
-                        Abastto
-                    </span>
+                    ABASTTO
                 </Link>
             </div>
 

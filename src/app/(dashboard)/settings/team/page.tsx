@@ -38,9 +38,12 @@ export default async function TeamSettingsPage() {
     }
 
     return (
-        <div className="max-w-4xl">
-            <div className="flex justify-between items-center mb-6 border-b dark:border-white/5 pb-4">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Directorio de Equipo</h2>
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1400px] w-full mx-auto space-y-6">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-6">
+                <div>
+                    <p className="text-[0.7rem] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-1">Gestión de Accesos</p>
+                    <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-outfit">Directorio de Equipo</h2>
+                </div>
                 {isOwnerOrAdmin && (
                     <InviteMemberModal />
                 )}

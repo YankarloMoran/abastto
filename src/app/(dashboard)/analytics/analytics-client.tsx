@@ -117,7 +117,7 @@ export function AnalyticsClient(props: AnalyticsClientProps) {
 
     return (
         <motion.div
-            className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1400px] w-full mx-auto space-y-8"
+            className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1600px] w-full mx-auto space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="show"

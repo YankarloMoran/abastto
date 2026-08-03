@@ -70,31 +70,33 @@ export function DashboardClient({
             </motion.div>
 
             {/* ── KPI strip ── */}
-            <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatBlock
                     label={isBuyer ? "Total adjudicado" : "Pipeline ganado"}
                     value={fmt(totalValue)}
-                    icon={<DollarSign className="w-3.5 h-3.5" />}
+                    icon={<DollarSign className="w-4 h-4" />}
                     accent="blue"
                 />
                 <StatBlock
-                    label={isBuyer ? "Licitaciones activas" : "Ofertas enviadas"}
+                    label={isBuyer ? "Licitaciones abiertas" : "Ofertas enviadas"}
                     value={activeCount.toString()}
-                    icon={<Activity className="w-3.5 h-3.5" />}
+                    icon={<Activity className="w-4 h-4" />}
                     accent="violet"
                 />
                 <StatBlock
-                    label={isBuyer ? "Cierres completados" : "Contratos ganados"}
+                    label={isBuyer ? "Acuerdos cerrados" : "Contratos ganados"}
                     value={successCount.toString()}
-                    icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                    icon={<CheckCircle2 className="w-4 h-4" />}
                     accent="emerald"
                 />
-                <div className="bg-white dark:bg-[#0c1020] rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                        <span className="text-[0.68rem] text-slate-500 dark:text-slate-400 font-medium">Calificación</span>
-                        <Star className="w-3.5 h-3.5 text-amber-400" />
+                <div className="bg-white dark:bg-[#0c1020] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between hover:shadow-md transition-all duration-200">
+                    <div className="flex justify-between items-start mb-4">
+                        <span className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Calificación Comercial</span>
+                        <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/40">
+                            <Star className="w-4 h-4" />
+                        </div>
                     </div>
-                    <div className="flex-1 flex items-end overflow-hidden">
+                    <div className="flex-1 max-w-full overflow-hidden flex items-end">
                         {trustScoreBadge}
                     </div>
                 </div>
@@ -240,19 +242,21 @@ function StatBlock({ label, value, icon, accent }: {
     icon: React.ReactNode
     accent: 'blue' | 'violet' | 'emerald'
 }) {
-    const dotColor = {
-        blue: 'bg-blue-500',
-        violet: 'bg-violet-500',
-        emerald: 'bg-emerald-500',
+    const badgeStyles = {
+        blue: 'p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/40',
+        violet: 'p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-900/40',
+        emerald: 'p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40',
     }[accent]
 
     return (
-        <div className="bg-white dark:bg-[#0c1020] rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-                <span className="text-[0.68rem] text-slate-500 dark:text-slate-400 font-medium leading-none">{label}</span>
-                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+        <div className="bg-white dark:bg-[#0c1020] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between hover:shadow-md transition-all duration-200">
+            <div className="flex justify-between items-start mb-4">
+                <span className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</span>
+                <div className={badgeStyles}>
+                    {icon}
+                </div>
             </div>
-            <p className="text-[1.45rem] font-bold text-slate-900 dark:text-white tracking-tight font-outfit leading-none">
+            <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight font-outfit">
                 {value}
             </p>
         </div>

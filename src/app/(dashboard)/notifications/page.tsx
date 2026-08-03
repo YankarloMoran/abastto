@@ -130,7 +130,7 @@ export default async function NotificationsPage() {
     const unreadCount = notifications.length
 
     return (
-        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[760px] w-full mx-auto">
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1200px] w-full mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 mb-7">
                 <div>

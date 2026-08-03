@@ -28,11 +28,12 @@ export default async function SettingsProfilePage() {
     const isReadOnly = session.user.companyRole !== 'OWNER' && session.user.companyRole !== 'ADMIN'
 
     return (
-        <div className="max-w-4xl">
-            <div className="mb-10 flex items-center justify-between border-b dark:border-white/5 pb-6">
+        <div className="flex-1 p-5 md:p-8 xl:p-10 max-w-[1400px] w-full mx-auto space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Perfil de la Empresa</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Actualiza la información pública y operativa de tu negocio.</p>
+                    <p className="text-[0.7rem] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-1">Ajustes Generales</p>
+                    <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-outfit">Perfil de la Empresa</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Actualiza la información pública y operativa de tu negocio.</p>
                 </div>
                 <TrustScoreBadge companyId={session.user.companyId} />
             </div>
