@@ -41,7 +41,6 @@ export function MobileSidebar({ isBuyer, userName, userRole }: MobileSidebarProp
         ...(isBuyer ? [{ icon: Activity, label: 'Analíticas Generales', href: '/analytics', active: pathname.startsWith('/analytics') }] : []),
         { icon: Users, label: 'Red de Proveedores', href: '/network', active: pathname.startsWith('/network') },
         { icon: Settings, label: 'Ajustes de Plataforma', href: '/settings', active: pathname.startsWith('/settings') },
-        { icon: Users, label: 'Directorio de Equipo', href: '/settings/team', active: pathname === '/settings/team' },
     ]
 
     return (

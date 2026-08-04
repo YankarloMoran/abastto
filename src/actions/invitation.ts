@@ -9,7 +9,7 @@ import { logActivity } from '@/lib/activity-log'
 
 const InviteSchema = z.object({
     email: z.string().email({ message: 'Debe ser un correo electrónico válido.' }),
-    role: z.enum(['ADMIN', 'MEMBER'], { message: 'El rol debe ser ADMIN o MEMBER.' })
+    role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER'], { message: 'El rol debe ser válido (OWNER, ADMIN, MEMBER, VIEWER).' })
 })
 
 export type InviteState = {
@@ -76,7 +76,7 @@ export async function createInvitation(prevState: InviteState, formData: FormDat
         await prisma.invitation.create({
             data: {
                 email,
-                role: role as 'ADMIN' | 'MEMBER',
+                role: role as 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER',
                 companyId: session.user.companyId,
                 token,
                 expiresAt

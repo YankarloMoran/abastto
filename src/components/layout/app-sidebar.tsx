@@ -25,7 +25,6 @@ const NAV_ITEMS = (isBuyer: boolean) => [
 
 const BOTTOM_ITEMS = [
     { icon: Settings, label: 'Configuración', href: '/settings' },
-    { icon: UserCog, label: 'Equipo', href: '/settings/team' },
 ]
 
 export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
@@ -43,8 +42,7 @@ export function AppSidebar({ userName, userRole, isBuyer }: AppSidebarProps) {
 
     const isActive = (href: string) => {
         if (href === '/dashboard') return pathname === '/dashboard'
-        if (href === '/settings/team') return pathname === '/settings/team'
-        if (href === '/settings') return pathname.startsWith('/settings') && pathname !== '/settings/team'
+        if (href === '/settings') return pathname.startsWith('/settings')
         return pathname.startsWith(href)
     }
 

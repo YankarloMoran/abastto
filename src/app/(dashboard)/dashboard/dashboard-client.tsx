@@ -108,7 +108,7 @@ export function DashboardClient({
                             <Star className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="flex-1 max-w-full overflow-hidden flex items-end">
+                    <div className="flex-1 w-full min-w-0 flex items-end">
                         {trustScoreBadge}
                     </div>
                 </div>
