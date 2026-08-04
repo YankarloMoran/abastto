@@ -36,7 +36,7 @@ Tu tarea es analizar el requerimiento y extraer la información en un objeto JSO
 
 Reglas obligatorias:
 1. El presupuesto ('budget') debe ser un número entero o decimal estimado en Quetzales. Si no se especifica, calcula una estimación razonable mayor a 0 basada en el mercado de Guatemala.
-2. La categoría ('category') debe ser estrictamente una de las siguientes opciones: 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'.
+2. La categoría ('category') debe ser strictly una de las siguientes opciones: 'TECH', 'OFFICE', 'CONSTRUCTION', 'SERVICES', 'OTHER'.
 3. Las partidas ('items') deben ser un array de objetos con las claves:
    - "name": Nombre del producto o servicio.
    - "quantity": Número entero positivo (mayor a 0).
@@ -59,7 +59,7 @@ Responde ÚNICAMENTE con un JSON estricto sin bloques de markdown (\`\`\`json), 
 
         try {
             const result = await generateText({
-                model: google('gemini-1.5-flash'),
+                model: google('gemini-2.5-flash'),
                 prompt,
             })
 
@@ -79,7 +79,7 @@ Responde ÚNICAMENTE con un JSON estricto sin bloques de markdown (\`\`\`json), 
             const budgetMatch = userPrompt.match(/Q\s*([\d,.]+)/i) || userPrompt.match(/([\d,.]+)\s*quetzales/i)
             const budget = budgetMatch ? parseFloat(budgetMatch[1].replace(/,/g, '')) : 35000
 
-            // Extraer posibles items (ej. 5 impresoras, 15 toners)
+            // Extraer posibles items
             const items: Array<{ name: string; quantity: number; unit: string }> = []
             const itemMatches = Array.from(userPrompt.matchAll(/(\d+)\s+([a-zA-ZáéíóúñÁÉÍÓÚÑ\s]{3,35})(?:,|y|\.|$)/gi))
 
@@ -150,7 +150,7 @@ Escribe una propuesta formal, persuasiva y profesional en 2 párrafos cortos res
         let proposalText = ''
         try {
             const result = await generateText({
-                model: google('gemini-1.5-flash'),
+                model: google('gemini-2.5-flash'),
                 prompt,
             })
             proposalText = result.text.trim()
@@ -258,7 +258,7 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
         let cleanJson = ''
         try {
             const result = await generateText({
-                model: google('gemini-1.5-flash'),
+                model: google('gemini-2.5-flash'),
                 prompt,
             })
 
@@ -272,7 +272,7 @@ Debes devolver un JSON que cumpla EXACTAMENTE con esta estructura:
         } catch (apiErr) {
             console.warn("AI Analysis API call failed, generating comparative analysis fallback:", apiErr)
             
-            // Fallback de análisis comparativo inteligente si la API externa no responde
+            // Fallback de análisis comparativo inteligente
             const sortedBids = [...rfq.bids].sort((a, b) => Number(a.amount) - Number(b.amount))
             const bestBid = sortedBids[0]
 
@@ -378,7 +378,7 @@ Escribe un reporte ejecutivo de 2 a 3 párrafos resaltando el ahorro financiero 
         let analysisText = ''
         try {
             const result = await generateText({
-                model: google('gemini-1.5-flash'),
+                model: google('gemini-2.5-flash'),
                 prompt,
             })
             analysisText = result.text
