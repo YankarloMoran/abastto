@@ -116,7 +116,7 @@ export async function createRfq(prevState: State | undefined, data: any) {
     }
 
     revalidatePath('/dashboard')
-    redirect('/dashboard')
+    redirect('/dashboard?rfqCreated=true')
 }
 
 export async function approveRfq(rfqId: string) {

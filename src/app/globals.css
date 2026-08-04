@@ -143,3 +143,14 @@
   --chart-tooltip-text: #f1f5f9;
   --chart-pie-stroke: #0f172a;
 }
+
+/* Fix native select options in dark mode */
+select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}

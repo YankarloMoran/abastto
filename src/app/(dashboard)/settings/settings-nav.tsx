@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Building, Users, ShieldCheck, Palette, ScrollText, ChevronRight } from "lucide-react"
+import { Building, Users, ShieldCheck, Palette, ScrollText } from "lucide-react"
 
 const navItems = [
     {
@@ -36,7 +36,7 @@ export function SettingsNav() {
     const pathname = usePathname()
 
     return (
-        <nav className="space-y-2 sticky top-24">
+        <nav className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 dark:border-white/10 mb-8">
             {navItems.map((item) => {
                 const isActive = pathname === item.href
                 const Icon = item.icon
@@ -45,21 +45,14 @@ export function SettingsNav() {
                     <Link
                         key={item.href}
                         href={item.href}
-                        className={`group flex items-center justify-between px-4 py-3.5 text-sm font-bold rounded-xl transition-all duration-300 border ${
+                        className={`flex items-center gap-2.5 px-4 py-3 text-xs md:text-sm font-bold rounded-xl whitespace-nowrap transition-all duration-200 ${
                             isActive
-                                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-white/10 shadow-sm"
-                                : "text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                         }`}
                     >
-                        <div className="flex items-center gap-3">
-                            <Icon className={`w-4 h-4 transition-colors ${
-                                isActive ? "text-blue-600" : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
-                            }`} />
-                            {item.name}
-                        </div>
-                        {isActive && (
-                            <ChevronRight className="w-4 h-4 text-blue-600 animate-in fade-in slide-in-from-left-1" />
-                        )}
+                        <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
+                        {item.name}
                     </Link>
                 )
             })}

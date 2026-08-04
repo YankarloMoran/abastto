@@ -32,6 +32,7 @@ export type State = {
         department?: string[]
     }
     message?: string | null
+    success?: boolean
 }
 
 /**
@@ -162,7 +163,10 @@ export async function registerUser(prevState: State, formData: FormData): Promis
     }
 
     if (successRedirect) {
-        redirect('/login')
+        return {
+            success: true,
+            message: '¡Cuenta y entidad corporativa creadas exitosamente!'
+        }
     }
 
     return {};

@@ -12,6 +12,10 @@ import {
 import { STATUS_LABELS } from "@/lib/constants"
 import { DashboardCharts } from "@/components/dashboard-charts"
 
+import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
+import { useEffect } from 'react'
+
 interface DashboardClientProps {
     isBuyer: boolean
     companyId: string
@@ -39,6 +43,14 @@ export function DashboardClient({
     isBuyer, companyId, totalValue, activeCount, successCount,
     tableData, alerts, rfqsByStatus, monthlyData, trustScoreBadge
 }: DashboardClientProps) {
+
+    const searchParams = useSearchParams()
+
+    useEffect(() => {
+        if (searchParams.get('rfqCreated') === 'true') {
+            toast.success('¡Licitación creada con éxito! Se ha publicado en la red de abastecimiento.')
+        }
+    }, [searchParams])
 
     const fmt = (n: number) => `Q ${n.toLocaleString('es-GT', { maximumFractionDigits: 0 })}`
 

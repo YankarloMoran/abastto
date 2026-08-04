@@ -5,13 +5,16 @@ import { registerUser } from '@/actions/register'
 import { Building2, User, Mail, Lock, CheckCircle2, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 export default function RegisterForm({ invitation }: { invitation?: any | null }) {
-    const initialState = { message: '', errors: {} }
+    const router = useRouter()
+    const initialState = { message: '', errors: {}, success: false }
     const [state, dispatch] = useActionState(registerUser, initialState)
     const [showPassword, setShowPassword] = useState(false)
     const [step, setStep] = useState(invitation ? 2 : 1)
+    const [countdown, setCountdown] = useState(3)
 
     // Si hay errores de validación en el estado, asegurar que estemos en el paso correcto para verlos
     useEffect(() => {
@@ -25,8 +28,58 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
         }
     }, [state.errors, invitation])
 
+    // Redirección automática tras éxito con temporizador
+    useEffect(() => {
+        if (state.success) {
+            const timer = setInterval(() => {
+                setCountdown((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer)
+                        router.push('/login')
+                        return 0
+                    }
+                    return prev - 1
+                })
+            }, 1000)
+            return () => clearInterval(timer)
+        }
+    }, [state.success, router])
+
     const nextStep = () => setStep(2)
     const prevStep = () => setStep(1)
+
+    // Pantalla de Confirmación de Éxito
+    if (state.success) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl py-10 px-8 shadow-2xl shadow-emerald-900/10 sm:rounded-[2rem] sm:px-10 border border-emerald-500/20 text-center w-full max-w-lg mx-auto space-y-6 relative z-10"
+            >
+                <div className="w-20 h-20 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-500/10">
+                    <CheckCircle2 className="w-10 h-10" />
+                </div>
+                <div>
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white font-outfit tracking-tight">
+                        ¡Cuenta creada con éxito!
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium leading-relaxed">
+                        {state.message || 'Tu registro ha sido procesado correctamente. Tu entidad comercial y credenciales están listas.'}
+                    </p>
+                </div>
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl">
+                    <p className="text-xs font-bold text-blue-700 dark:text-blue-300">
+                        Redirigiendo automáticamente al inicio de sesión en <span className="text-blue-600 dark:text-blue-400 text-sm font-black">{countdown}</span> segundos...
+                    </p>
+                </div>
+                <Link href="/login" className="block w-full">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 rounded-2xl text-sm cursor-pointer shadow-lg shadow-blue-600/20 transition-all">
+                        Ir al Inicio de Sesión
+                    </Button>
+                </Link>
+            </motion.div>
+        )
+    }
 
     return (
         <div className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl py-8 px-6 shadow-2xl shadow-blue-900/5 sm:rounded-[2rem] sm:px-10 border border-slate-200/50 dark:border-white/10 transition-colors overflow-hidden relative z-10 w-full max-w-2xl">
@@ -92,7 +145,7 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                                     type="text"
                                     name="nit"
                                     id="nit"
-                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3 px-4 transition-all shadow-sm"
+                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-3 px-4 transition-all shadow-sm"
                                     placeholder="Ej. 1234567-8"
                                 />
                                 {state.errors?.nit && (
@@ -108,19 +161,19 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                                 <select
                                     id="industry"
                                     name="industry"
-                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3 px-4 transition-all shadow-sm appearance-none"
+                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white dark:[&_option]:bg-slate-900 dark:[&_option]:text-slate-100 py-3 px-4 transition-all shadow-sm appearance-none cursor-pointer"
                                 >
-                                    <option value="">Seleccione el sector...</option>
-                                    <option value="AGRICULTURA">Agricultura</option>
-                                    <option value="CONSTRUCCION">Construcción</option>
-                                    <option value="ESTADO_GOBIERNO">Entidad Gubernamental</option>
-                                    <option value="MANUFACTURA">Manufactura y Producción</option>
-                                    <option value="MEDICAL_SALUD">Salud y Servicios Médicos</option>
-                                    <option value="RETAIL_COMERCIO">Comercio Minorista / Mayorista</option>
-                                    <option value="SERVICIOS_PROFESIONALES">Servicios Profesionales</option>
-                                    <option value="TECNOLOGIA">Tecnología de la Información</option>
-                                    <option value="TRANSPORTE_LOGISTICA">Transporte y Logística</option>
-                                    <option value="OTRO">Otro sector corporativo</option>
+                                    <option value="" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Seleccione el sector...</option>
+                                    <option value="AGRICULTURA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Agricultura</option>
+                                    <option value="CONSTRUCCION" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Construcción</option>
+                                    <option value="ESTADO_GOBIERNO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Entidad Gubernamental</option>
+                                    <option value="MANUFACTURA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Manufactura y Producción</option>
+                                    <option value="MEDICAL_SALUD" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Salud y Servicios Médicos</option>
+                                    <option value="RETAIL_COMERCIO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Comercio Minorista / Mayorista</option>
+                                    <option value="SERVICIOS_PROFESIONALES" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Servicios Profesionales</option>
+                                    <option value="TECNOLOGIA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Tecnología de la Información</option>
+                                    <option value="TRANSPORTE_LOGISTICA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Transporte y Logística</option>
+                                    <option value="OTRO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Otro sector corporativo</option>
                                 </select>
                                 {state.errors?.industry && (
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium">{state.errors.industry.join(', ')}</p>
@@ -136,7 +189,7 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                                     type="text"
                                     name="companyName"
                                     id="companyName"
-                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3 px-4 transition-all shadow-sm"
+                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-3 px-4 transition-all shadow-sm"
                                     placeholder="Ej. Constructora Los Andes S.A."
                                 />
                                 {state.errors?.companyName && (
@@ -152,31 +205,31 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                                 <select
                                     id="department"
                                     name="department"
-                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3 px-4 transition-all shadow-sm appearance-none"
+                                    className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white dark:[&_option]:bg-slate-900 dark:[&_option]:text-slate-100 py-3 px-4 transition-all shadow-sm appearance-none cursor-pointer"
                                 >
-                                    <option value="">Seleccione...</option>
-                                    <option value="GUATEMALA">Guatemala</option>
-                                    <option value="ALTA_VERAPAZ">Alta Verapaz</option>
-                                    <option value="BAJA_VERAPAZ">Baja Verapaz</option>
-                                    <option value="CHIMALTENANGO">Chimaltenango</option>
-                                    <option value="CHIQUIMULA">Chiquimula</option>
-                                    <option value="EL_PROGRESO">El Progreso</option>
-                                    <option value="ESCUINTLA">Escuintla</option>
-                                    <option value="HUEHUETENANGO">Huehuetenango</option>
-                                    <option value="IZABAL">Izabal</option>
-                                    <option value="JALAPA">Jalapa</option>
-                                    <option value="JUTIAPA">Jutiapa</option>
-                                    <option value="PETEN">Petén</option>
-                                    <option value="QUETZALTENANGO">Quetzaltenango</option>
-                                    <option value="QUICHE">Quiché</option>
-                                    <option value="RETALHULEU">Retalhuleu</option>
-                                    <option value="SACATEPEQUEZ">Sacatepéquez</option>
-                                    <option value="SAN_MARCOS">San Marcos</option>
-                                    <option value="SANTA_ROSA">Santa Rosa</option>
-                                    <option value="SOLOLA">Sololá</option>
-                                    <option value="SUCHITEPEQUEZ">Suchitepéquez</option>
-                                    <option value="TOTONICAPAN">Totonicapán</option>
-                                    <option value="ZACAPA">Zacapa</option>
+                                    <option value="" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Seleccione...</option>
+                                    <option value="GUATEMALA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Guatemala</option>
+                                    <option value="ALTA_VERAPAZ" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Alta Verapaz</option>
+                                    <option value="BAJA_VERAPAZ" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Baja Verapaz</option>
+                                    <option value="CHIMALTENANGO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Chimaltenango</option>
+                                    <option value="CHIQUIMULA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Chiquimula</option>
+                                    <option value="EL_PROGRESO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">El Progreso</option>
+                                    <option value="ESCUINTLA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Escuintla</option>
+                                    <option value="HUEHUETENANGO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Huehuetenango</option>
+                                    <option value="IZABAL" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Izabal</option>
+                                    <option value="JALAPA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Jalapa</option>
+                                    <option value="JUTIAPA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Jutiapa</option>
+                                    <option value="PETEN" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Petén</option>
+                                    <option value="QUETZALTENANGO" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Quetzaltenango</option>
+                                    <option value="QUICHE" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Quiché</option>
+                                    <option value="RETALHULEU" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Retalhuleu</option>
+                                    <option value="SACATEPEQUEZ" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Sacatepéquez</option>
+                                    <option value="SAN_MARCOS" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">San Marcos</option>
+                                    <option value="SANTA_ROSA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Santa Rosa</option>
+                                    <option value="SOLOLA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Sololá</option>
+                                    <option value="SUCHITEPEQUEZ" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Suchitepéquez</option>
+                                    <option value="TOTONICAPAN" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Totonicapán</option>
+                                    <option value="ZACAPA" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Zacapa</option>
                                 </select>
                                 {state.errors?.department && (
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium">{state.errors.department.join(', ')}</p>
@@ -214,7 +267,7 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                             <button
                                 type="button"
                                 onClick={nextStep}
-                                className="group relative w-full flex justify-center py-4 border border-transparent rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.2)] text-base font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all overflow-hidden"
+                                className="group relative w-full flex justify-center py-4 border border-transparent rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.2)] text-base font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all overflow-hidden cursor-pointer"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <span className="relative z-10 flex items-center">
@@ -234,158 +287,158 @@ export default function RegisterForm({ invitation }: { invitation?: any | null }
                         transition={{ duration: 0.3 }}
                         className="space-y-6"
                     >
-                            {invitation && (
-                                <div className="mb-8 bg-blue-500/10 border border-blue-500/20 p-5 rounded-2xl backdrop-blur-md">
-                                    <div className="flex gap-3">
-                                        <CheckCircle2 className="w-6 h-6 text-blue-500 shrink-0" />
-                                        <div>
-                                            <p className="text-sm font-bold text-blue-900 dark:text-blue-100">Invitación confirmada</p>
-                                            <p className="text-sm text-blue-800 dark:text-blue-300/80 mt-1 font-medium">
-                                                Completando acceso para <span className="font-bold text-blue-600 dark:text-blue-200">{invitation.company.name}</span>.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="pt-2 text-center mb-8">
-                                <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-3 font-outfit tracking-tight">
-                                    <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                                    Cuenta Administradora
-                                </h3>
-                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 font-medium">Credenciales formales de acceso a la entidad.</p>
-                            </div>
-                            
-                            <div className="space-y-5">
-                                <div>
-                                    <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Nombre del representante
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <User className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            id="name"
-                                            autoComplete="name"
-                                            required
-                                            className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3.5 transition-all shadow-sm"
-                                            placeholder="Nombre completo"
-                                        />
-                                    </div>
-                                    {state.errors?.name && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="name-error">
-                                            {state.errors.name.join(', ')}
+                        {invitation && (
+                            <div className="mb-8 bg-blue-500/10 border border-blue-500/20 p-5 rounded-2xl backdrop-blur-md">
+                                <div className="flex gap-3">
+                                    <CheckCircle2 className="w-6 h-6 text-blue-500 shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-bold text-blue-900 dark:text-blue-100">Invitación confirmada</p>
+                                        <p className="text-sm text-blue-800 dark:text-blue-300/80 mt-1 font-medium">
+                                            Completando acceso para <span className="font-bold text-blue-600 dark:text-blue-200">{invitation.company.name}</span>.
                                         </p>
-                                    )}
-                                </div>
-
-                                {/* Email Field */}
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Dirección de correo electrónico
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
-                                        </div>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            id="email"
-                                            autoComplete="email"
-                                            defaultValue={invitation?.email || ''}
-                                            readOnly={!!invitation}
-                                            required
-                                            className={`focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3.5 transition-all shadow-sm ${invitation ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            placeholder="correo@empresa.com"
-                                        />
                                     </div>
-                                    {state.errors?.email && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="email-error">
-                                            {state.errors.email.join(', ')}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Password Field */}
-                                <div>
-                                    <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Contraseña de seguridad
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
-                                        </div>
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            name="password"
-                                            id="password"
-                                            required
-                                            className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 pr-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-black/20 dark:text-white py-3.5 transition-all shadow-sm"
-                                            placeholder="••••••••"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors"
-                                            onMouseDown={() => setShowPassword(true)}
-                                            onMouseUp={() => setShowPassword(false)}
-                                            onMouseLeave={() => setShowPassword(false)}
-                                            onTouchStart={() => setShowPassword(true)}
-                                            onTouchEnd={() => setShowPassword(false)}
-                                        >
-                                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                        </button>
-                                    </div>
-                                    {state.errors?.password && (
-                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="password-error">
-                                            {state.errors.password.join(', ')}
-                                        </p>
-                                    )}
                                 </div>
                             </div>
+                        )}
 
-                            {/* Hidden role inherited from company if invited */}
-                            {invitation && (
-                                <input type="hidden" name="role" value={invitation.role === 'ADMIN' ? 'ADMIN' : 'MEMBER'} />
-                            )}
-
-                            {state.message && (
-                                <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 mt-6">
-                                    <div className="flex">
-                                        <div className="ml-3">
-                                            <h3 className="text-sm font-medium text-red-800 dark:text-red-400">
-                                                {state.message}
-                                            </h3>
-                                        </div>
+                        <div className="pt-2 text-center mb-8">
+                            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-3 font-outfit tracking-tight">
+                                <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                Cuenta Administradora
+                            </h3>
+                            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 font-medium">Credenciales formales de acceso a la entidad.</p>
+                        </div>
+                        
+                        <div className="space-y-5">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Nombre del representante
+                                </label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
                                     </div>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        id="name"
+                                        autoComplete="name"
+                                        required
+                                        className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-3.5 transition-all shadow-sm"
+                                        placeholder="Nombre completo"
+                                    />
                                 </div>
-                            )}
+                                {state.errors?.name && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="name-error">
+                                        {state.errors.name.join(', ')}
+                                    </p>
+                                )}
+                            </div>
 
-                            <div className="pt-8 flex gap-4">
-                                {!invitation && (
+                            {/* Email Field */}
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Dirección de correo electrónico
+                                </label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
+                                    </div>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        autoComplete="email"
+                                        defaultValue={invitation?.email || ''}
+                                        readOnly={!!invitation}
+                                        required
+                                        className={`focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-3.5 transition-all shadow-sm ${invitation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        placeholder="correo@empresa.com"
+                                    />
+                                </div>
+                                {state.errors?.email && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="email-error">
+                                        {state.errors.email.join(', ')}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Password Field */}
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Contraseña de seguridad
+                                </label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
+                                    </div>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        name="password"
+                                        id="password"
+                                        required
+                                        className="focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full pl-12 pr-12 sm:text-sm border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-3.5 transition-all shadow-sm"
+                                        placeholder="••••••••"
+                                    />
                                     <button
                                         type="button"
-                                        onClick={prevStep}
-                                        className="flex-none px-5 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all outline-none"
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors"
+                                        onMouseDown={() => setShowPassword(true)}
+                                        onMouseUp={() => setShowPassword(false)}
+                                        onMouseLeave={() => setShowPassword(false)}
+                                        onTouchStart={() => setShowPassword(true)}
+                                        onTouchEnd={() => setShowPassword(false)}
                                     >
-                                        <ArrowLeft className="w-5 h-5" />
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
+                                </div>
+                                {state.errors?.password && (
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium" id="password-error">
+                                        {state.errors.password.join(', ')}
+                                    </p>
                                 )}
-                                <button
-                                    type="submit"
-                                    className="group relative flex-1 flex justify-center py-4 border border-transparent rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.2)] text-base font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all overflow-hidden"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <span className="relative z-10 flex items-center">
-                                        Comenzar ahora
-                                    </span>
-                                </button>
                             </div>
-                        </motion.div>
-                    </div>
+                        </div>
+
+                        {/* Hidden role inherited from company if invited */}
+                        {invitation && (
+                            <input type="hidden" name="role" value={invitation.role === 'ADMIN' ? 'ADMIN' : 'MEMBER'} />
+                        )}
+
+                        {state.message && !state.success && (
+                            <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 mt-6">
+                                <div className="flex">
+                                    <div className="ml-3">
+                                        <h3 className="text-sm font-medium text-red-800 dark:text-red-400">
+                                            {state.message}
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="pt-8 flex gap-4">
+                            {!invitation && (
+                                <button
+                                    type="button"
+                                    onClick={prevStep}
+                                    className="flex-none px-5 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all outline-none cursor-pointer"
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
+                                </button>
+                            )}
+                            <button
+                                type="submit"
+                                className="group relative flex-1 flex justify-center py-4 border border-transparent rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.2)] text-base font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all overflow-hidden cursor-pointer"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <span className="relative z-10 flex items-center">
+                                    Comenzar ahora
+                                </span>
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
             </form>
 
             <div className="mt-8 border-t border-slate-200/50 dark:border-white/5 pt-8 relative z-10">

@@ -136,7 +136,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
                                 </div>
                             </div>
                             
-                            <div className="prose prose-slate max-w-none text-[#45464d] text-[1.05rem] leading-relaxed mb-10">
+                            <div className="prose prose-slate max-w-none text-slate-700 dark:text-slate-300 text-[1.05rem] leading-relaxed mb-10">
                                 {rfq.description.split('\n').map((paragraph, index) => (
                                     <p key={index} className="mb-4">{paragraph}</p>
                                 ))}
@@ -195,9 +195,9 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
                                     </div>
                                 )}
                                 
-                                <div className="border-t-2 border-[#eceef0] pt-10">
-                                    <h2 className="text-2xl font-black text-[#131b2e] mb-8 tracking-tight flex items-center gap-3">
-                                        Evaluación de Ofertas <span className="bg-[#f2f4f6] text-[#45464d] text-sm px-3 py-1 rounded-full font-bold">{rfq.bids.length} RECIBIDAS</span>
+                                <div className="border-t border-slate-200 dark:border-white/10 pt-10">
+                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight flex items-center gap-3">
+                                        Evaluación de Ofertas <span className="bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-sm px-3 py-1 rounded-full font-bold">{rfq.bids.length} RECIBIDAS</span>
                                     </h2>
 
                                     {/* AI Analysis (Glassmorphism) */}
@@ -512,7 +512,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
                                 <div>
                                     <p className="text-[0.6rem] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Cierre Perimetral</p>
                                     <p className={`text-[1.1rem] font-black tracking-tight ${isPastDeadline ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'}`}>
-                                        {new Date(rfq.deadline).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short', hour12: true })}
+                                        {new Date(rfq.deadline).toLocaleDateString('es-GT', { timeZone: 'America/Guatemala', day: 'numeric', month: 'numeric', year: '2-digit' })}, {new Date(rfq.deadline).toLocaleTimeString('es-GT', { timeZone: 'America/Guatemala', hour: '2-digit', minute: '2-digit', hour12: true })}
                                     </p>
                                     {!isPastDeadline && <p className="text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 uppercase mt-1 animate-pulse">Recepción Abierta</p>}
                                 </div>
