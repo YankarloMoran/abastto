@@ -201,10 +201,10 @@ export async function POST(req: Request) {
     // ── Generate Stream ──
     try {
       // Usamos el mejor modelo oficial garantizado para Function Calling usando la API Key proporcionada
-      console.log(`[Nexus] Requesting stream from Google Gemini API (gemini-2.5-flash)`)
+      console.log(`[Nexus] Requesting stream from Google Gemini API (gemini-1.5-flash)`)
       
       const result = streamText({
-        model: google('gemini-2.5-flash'),
+        model: google('gemini-1.5-flash'),
         system: systemPrompt,
         messages: await convertToModelMessages(messages),
         tools,
